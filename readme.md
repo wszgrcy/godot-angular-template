@@ -1,0 +1,4 @@
+- npm i
+- npm run build
+- https://github.com/godotjs/GodotJS/releases 下载 https://github.com/godotjs/GodotJS/releases/download/v1.1.0.beta1-4.6.1/windows-editor-4.6.1-v8.zip 放到 bin 文件夹中
+- 打开godot编辑器导入 project.godot
