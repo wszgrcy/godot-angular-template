@@ -1,0 +1,5 @@
+{
+    "html.customData": [
+        "./node_modules/godot-angular/html-data/godot.html-data.json"
+    ]
+}
