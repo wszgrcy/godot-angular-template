@@ -14,7 +14,7 @@
             "tsConfig": "tsconfig.json",
             "outputPath": "dist",
             "resRoot": "res://dist",
-            "styles": ["src/global.css"],
+            "styles": ["src/global.scss"],
             "optimization": false,
             "sourceMap": false
           },

@@ -1,7 +1,10 @@
 {
   "compilerOptions": {
     "target": "es2022",
-    "lib": ["es2022"],
+    "lib": [
+      "es2022",
+      "DOM"
+    ],
     "module": "es2022",
     "moduleResolution": "bundler",
     "strict": true,
@@ -9,12 +12,19 @@
     "importHelpers": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
-    "typeRoots": ["./typings"],
-    "types": ["godot"]
+    "typeRoots": [
+      "./typings"
+    ],
+    "types": [
+      "godot"
+    ]
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
     "strictTemplates": false
   },
-  "include": ["src/**/*.ts", "tests/**/*.ts"]
+  "include": [
+    "src/**/*.ts",
+    "tests/**/*.ts"
+  ]
 }
