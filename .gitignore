@@ -44,6 +44,10 @@ testem.log
 /typings
 __screenshots__/
 
+# CUJ_MODE=shot 导出的截图（tools/check_layout.sh / inspect_shot.py 的产物）
+/shots/
+/shot*.png
+
 # System files
 .DS_Store
 Thumbs.db

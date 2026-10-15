@@ -1,0 +1,128 @@
+<ui-page
+  [title]="'样式与主题'"
+  [desc]="'CSS 的一个明确子集被编译到 Theme、StyleBoxFlat 与节点属性上。级联、特异度、伪类、自定义属性、媒体查询都在，盒模型和 display 不在——布局由容器负责。'"
+  [tags]="['Theme', 'StyleBoxFlat', ':hover', '@media', 'CSS 变量']">
+  <GridContainer class="grid" [columns]="2">
+    <ui-card [title]="'主题切换'" [desc]="'切换的是 .shell 上的 class，后代选择器接管配色；偏好写进 user:// 的 ConfigFile'">
+      <VBoxContainer class="section">
+        <HBoxContainer class="row">
+          <Button class="primary" [text]="prefs.dark() ? '切到浅色' : '切到深色'" (click)="prefs.toggle()"></Button>
+          <Label class="chip" [text]="prefs.dark() ? 'dark' : 'light'"></Label>
+        </HBoxContainer>
+        <Label class="muted" text="顶栏右侧那个按钮是同一个入口。整站所有卡片、按钮、输入框都会跟着换色。"></Label>
+        <ui-kv [k]="'持久化位置'" [v]="'user://godot-angular-prefs.cfg'"></ui-kv>
+      </VBoxContainer>
+    </ui-card>
+
+    <ui-card [title]="'内联 style 绑定'" [desc]="'[style.x] 落在内联层，优先级高于组件与全局样式表'">
+      <VBoxContainer class="section">
+        <HBoxContainer class="row">
+          <ColorPicker
+            [edit_alpha]="false"
+            [presets_visible]="false"
+            [sliders_visible]="false"
+            [hex_visible]="false"
+            [color_modes_visible]="false"
+            [sampler_visible]="false"
+            [edit_intensity]="false"
+            [deferred_mode]="true"
+            (color_changed)="ink.set($event)"></ColorPicker>
+          <VBoxContainer class="section">
+            <Panel class="swatch" [style.background-color]="inkCss()"></Panel>
+            <Label class="tiny" [text]="inkCss()"></Label>
+          </VBoxContainer>
+        </HBoxContainer>
+        <HBoxContainer class="field-row">
+          <Label class="field-label" text="字号"></Label>
+          <HSlider [min_value]="12" [max_value]="40" [value]="fontSize()" (change)="fontSize.set($event)"></HSlider>
+        </HBoxContainer>
+        <Label text="这段文字的字号与颜色都由绑定驱动" [style.color]="inkCss()" [style.fontSize]="fontSize()"></Label>
+      </VBoxContainer>
+    </ui-card>
+
+    <ui-card [title]="'伪类状态'" [desc]="':hover :pressed :focus :checked 由 Godot 信号驱动，自动改用带状态后缀的 theme item'">
+      <VBoxContainer class="section">
+        <HBoxContainer class="row">
+          <Button text="悬停我"></Button>
+          <Button class="primary" text="按住我"></Button>
+          <Button class="ghost" text="ghost"></Button>
+          <Button class="off" text="禁用态" [disabled]="true"></Button>
+        </HBoxContainer>
+        <Label
+          class="tiny"
+          text=":disabled 在 Godot 里没有对应的信号，样式运行时无法自动重算；上面那个按钮用的是 .off 类 + [class.off] 绑定"></Label>
+        <LineEdit placeholder_text="点一下获得焦点"></LineEdit>
+        <CheckBox text="勾选态走 :checked" [button_pressed]="true"></CheckBox>
+      </VBoxContainer>
+    </ui-card>
+
+    <ui-card [title]="'容器语义的近似落点'" [desc]="'gap 变成 BoxContainer.separation，justify-content 变成 alignment，都是单轴近似'">
+      <VBoxContainer class="section">
+        <HBoxContainer class="row">
+          <Button class="sm" [class.primary]="align() === 'flex-start'" text="flex-start" (click)="setAlign('flex-start')"></Button>
+          <Button class="sm" [class.primary]="align() === 'center'" text="center" (click)="setAlign('center')"></Button>
+          <Button class="sm" [class.primary]="align() === 'flex-end'" text="flex-end" (click)="setAlign('flex-end')"></Button>
+          <Control [size_flags_horizontal]="expand"></Control>
+          <Label class="tiny" [text]="'alignment = ' + alignText()"></Label>
+        </HBoxContainer>
+        <HBoxContainer [style.justify-content]="align()" [style.gap]="gap() + 'px'">
+          <Panel class="swatch"></Panel>
+          <Panel class="swatch"></Panel>
+          <Panel class="swatch"></Panel>
+        </HBoxContainer>
+        <HBoxContainer class="field-row">
+          <Label class="field-label" text="gap"></Label>
+          <HSlider [min_value]="0" [max_value]="48" [value]="gap()" (change)="gap.set($event)"></HSlider>
+          <Label class="tiny" [text]="gap() + 'px'"></Label>
+        </HBoxContainer>
+      </VBoxContainer>
+    </ui-card>
+
+    <ui-card [title]="'媒体查询'" [desc]="'环境值来自 Window.size_changed，改窗口宽度即可看到内容区内边距与侧栏宽度变化'">
+      <VBoxContainer class="section">
+        <ui-kv [k]="'窗口宽度'" [v]="rt.winText()"></ui-kv>
+        <ui-kv [k]="'界面缩放'" [v]="rt.scaleText()"></ui-kv>
+        <ui-kv [k]="'命中的断点'" [v]="bp.name()"></ui-kv>
+        <ui-kv [k]="'卡片网格列数'" [v]="bp.cols()"></ui-kv>
+        <Label class="muted" text="列数是组件算的：GridContainer.columns 属于节点树结构，CSS 改不了它。"></Label>
+        <Label class="muted" text="缩放因子 = 窗口尺寸 ÷ 基准尺寸（project.godot 的 [display] 段），字号与间距整体跟着走。"></Label>
+      </VBoxContainer>
+    </ui-card>
+
+    <ui-card [title]="'CSS 自定义属性'" [desc]="'ui-card 的强调条用的就是组件级 --card-accent，运行期按祖先链查找'">
+      <VBoxContainer class="section">
+        <ui-card [title]="'组件级变量'" [desc]="'这条强调条的颜色来自 var(--card-accent, #4cc2ff)'"></ui-card>
+        <Label class="tiny" text="构建期变量会加命名空间前缀，两个应用同进程也不会串色。"></Label>
+      </VBoxContainer>
+    </ui-card>
+  </GridContainer>
+
+  <ui-section
+    [title]="'属性落点对照'"
+    [hint]="'第三档会输出一条告警然后忽略，不会静默失败'">
+    <PanelContainer class="panel">
+      <VBoxContainer class="list">
+        <PanelContainer class="list-row">
+          <HBoxContainer class="row">
+            <Label class="field-label" [size_flags_horizontal]="expand" text="CSS 属性"></Label>
+            <Label class="field-label" text="Godot 落点"></Label>
+            <Label class="field-label" text="档位"></Label>
+          </HBoxContainer>
+        </PanelContainer>
+        @for (r of rows; track r.css) {
+        <PanelContainer class="list-row">
+          <HBoxContainer class="row">
+            <Label class="kv-val" [size_flags_horizontal]="expand" [text]="r.css"></Label>
+            <Label class="muted" [text]="r.godot"></Label>
+            <Label class="tiny" [class.ok]="r.tone === 'ok'" [class.warn]="r.tone === 'warn'" [class.danger]="r.tone === 'danger'" [text]="r.level"></Label>
+          </HBoxContainer>
+        </PanelContainer>
+        }
+      </VBoxContainer>
+    </PanelContainer>
+  </ui-section>
+
+  <ui-section [title]="'样式写法'">
+    <ui-code [code]="snippet"></ui-code>
+  </ui-section>
+</ui-page>

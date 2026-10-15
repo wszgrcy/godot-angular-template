@@ -1,74 +1,76 @@
-<VBoxContainer name="demo" [size_flags]="expand">
-  <label text="godot-angular — Angular in Godot"></label>
+<!--
+  应用外壳。布局全部由容器 + size_flags 决定：
+  顶栏 / 主体（侧栏 + 内容）/ 状态栏 三段竖向排列，主体横向分栏。
+  注意所有 Godot 标签都必须显式闭合，自闭合会破坏 AOT 编译。
+-->
+<PanelContainer
+  class="shell"
+  [size_flags]="expand"
+  [class.light]="!prefs.dark()">
+  <VBoxContainer [size_flags]="expand">
+    <!-- ======================== 顶栏 ======================== -->
+    <PanelContainer class="topbar">
+      <HBoxContainer class="top-row">
+        <PanelContainer class="logo">
+          <Label class="logo-mark" text="gA"></Label>
+        </PanelContainer>
+        <Label class="brand" text="godot-angular"></Label>
+        <Label class="brand-sub" text="Angular 模板 → 真实 Godot 节点树"></Label>
+        <Control [size_flags_horizontal]="expand"></Control>
+        <Label class="chip" [text]="runtime.winText()"></Label>
+        <Label class="crumb" [text]="'URL ' + path()"></Label>
+        <Button class="ghost sm" [text]="prefs.dark() ? '浅色' : '深色'" (click)="prefs.toggle()"></Button>
+      </HBoxContainer>
+    </PanelContainer>
 
-  <!-- 信号 → 事件：(click) 解析到 Button.pressed -->
-  <HBoxContainer>
-    <label [text]="'count = ' + count()"></label>
-    <button text="+1" (click)="inc()"></button>
-  </HBoxContainer>
+    <!-- ======================== 主体 ======================== -->
+    <HBoxContainer [size_flags]="expand">
+      <!-- 侧边导航：Button 的 (click) 解析到 BaseButton.pressed，$event 是 undefined -->
+      <PanelContainer class="sidebar">
+        <VBoxContainer class="nav">
+          <Label class="nav-title" text="演示页面"></Label>
+          @for (item of nav; track item.path) {
+          <Button
+            class="nav-item"
+            [text]="item.label"
+            [tooltip_text]="item.desc"
+            [class.active]="isActive(item.path)"
+            (click)="go(item.path)"></Button>
+          }
+          <Control [size_flags_vertical]="expand"></Control>
+          <Panel class="divider"></Panel>
+          <Label class="nav-foot" text="zoneless 变更检测"></Label>
+          <Label class="nav-foot" text="AOT · 无 WebView · 无 GDScript"></Label>
+        </VBoxContainer>
+      </PanelContainer>
 
-  <!-- @if -->
-  <HBoxContainer>
-    <button text="toggle @if" (click)="toggleIf()"></button>
-    @if (showIf()) {
-    <label text="@if 为真时存在"></label>
-    } @else {
-    <label text="@if 为假"></label>
-    }
-  </HBoxContainer>
+      <!-- 内容区：路由出口放在 ScrollContainer 里，
+           激活的页面是 router-outlet 的兄弟节点，所以包一层 VBoxContainer 接住 -->
+      <VBoxContainer [size_flags]="expand">
+        <ScrollContainer #scroller [size_flags]="expand" (resized)="syncWidth()">
+          <PanelContainer class="content" #content [size_flags_vertical]="shrink">
+            <VBoxContainer [size_flags_horizontal]="expand" [size_flags_vertical]="shrink">
+              <router-outlet></router-outlet>
+            </VBoxContainer>
+          </PanelContainer>
+        </ScrollContainer>
+      </VBoxContainer>
+    </HBoxContainer>
 
-  <!-- @for -->
-  <HBoxContainer>
-    <button text="add" (click)="addItem()"></button>
-    <button text="remove" (click)="removeFirst()"></button>
-  </HBoxContainer>
-  <VBoxContainer>
-    @for (item of items(); track item.id) {
-    <label [text]="item.name"></label>
-    }
+    <!-- ======================== 状态栏 ======================== -->
+    <PanelContainer class="statusbar">
+      <HBoxContainer class="top-row">
+        <Panel class="dot" [class.idle]="!runtime.ticking()"></Panel>
+        <Label class="status-item" [text]="'tick ' + runtime.frames()"></Label>
+        <Label class="status-item" [text]="'FPS ' + runtime.fpsText()"></Label>
+        <Label class="status-item" [text]="'帧耗时 ' + runtime.msText() + ' ms'"></Label>
+        <Label class="status-item" [text]="'节点 ' + runtime.nodes()"></Label>
+        <Label class="status-item" [text]="'内存 ' + runtime.memText()"></Label>
+        <Label class="status-item" [text]="'缩放 ' + runtime.scaleText()"></Label>
+        <Control [size_flags_horizontal]="expand"></Control>
+        <Label class="status-item" [text]="'鼠标 ' + runtime.mouseX() + ',' + runtime.mouseY()"></Label>
+        <Label class="status-item" [text]="runtime.clock()"></Label>
+      </HBoxContainer>
+    </PanelContainer>
   </VBoxContainer>
-
-  <!-- @switch -->
-  <HBoxContainer>
-    <button text="cycle @switch" (click)="cycleMode()"></button>
-    @switch (mode()) { @case ("a") { <label text="模式 A"></label> } @case ("b") { <label text="模式 B"></label> } @default {
-    <label text="模式 C"></label> } }
-  </HBoxContainer>
-
-  <!-- 属性设置：颜色 / 字号 / 最小尺寸 -->
-  <label text="styled label" [custom_minimum_size]="labelMinSize" [style.color]="'#ff8800'" [style.fontSize]="28"></label>
-
-  <!-- 输入信号：LineEdit.text_changed -->
-  <HBoxContainer>
-    <LineEdit [size_flags]="expand" (input)="onInput($event)"></LineEdit>
-    <label [text]="'input: ' + lastInput()"></label>
-  </HBoxContainer>
-
-  <!-- ng-content 投影 -->
-  <ui-card [title]="'ng-content 投影'">
-    <label text="这行是被投影进来的内容"></label>
-  </ui-card>
-
-  <VBoxContainer>
-    <HBoxContainer>
-      <label text="选项1"></label>
-      <button text="按钮1" (click)="clickBtn(1)"></button>
-    </HBoxContainer>
-    <HBoxContainer>
-      <label text="选项2"></label>
-      <button text="按钮2"></button>
-    </HBoxContainer>
-    <HBoxContainer>
-      <label text="选项3"></label>
-      <button text="按钮3"></button>
-    </HBoxContainer>
-  </VBoxContainer>
-
-  <HBoxContainer>
-    <button text="跳转到页面1" (click)="navTo('/page1')"></button>
-    <button text="跳转到页面2" (click)="navTo('/page2')"></button>
-  </HBoxContainer>
-  <HBoxContainer>
-    <router-outlet></router-outlet>
-  </HBoxContainer>
-</VBoxContainer>
+</PanelContainer>

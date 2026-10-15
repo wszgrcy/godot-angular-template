@@ -1,9 +1,753 @@
-Label {
-  font-size: 16px;
+// ============================================================================
+// godot-angular 设计系统
+//
+// 这里没有一行 CSS 会交给浏览器：构建期解析，运行期落到 Godot 的
+// Theme（颜色 / 字号 / stylebox）、StyleBoxFlat（圆角 边框 内边距 阴影）
+// 与 Control 属性（custom_minimum_size / size_flags / alignment）上。
+//
+// 因此本文件只使用有真实落点的属性：
+//   color background-color font-size opacity border-* border-radius box-shadow
+//   padding gap justify-content flex text-align cursor width height min-*
+// 布局（谁在谁旁边、谁拉伸）由容器 + size_flags 决定，不由 display:flex 决定。
+//
+// 注释一律用 //：/* */ 会留在编译产物里，非 ASCII 内容会让 sass 在开头
+// 加一条 @charset，而样式运行时不认它，会白告一条警。
+// ==========================================================================
+
+// ---------- 调色板（构建期展开为字面量，运行期零解析开销） ----------
+$bg:       #0b0f16;
+$bg-deep:  #070a10;
+$surface:  #151b25;
+$surface2: #1b2331;
+$surface3: #232e3f;
+$line:     #293546;
+$line2:    #3a4a61;
+$text:     #e6edf3;
+$text2:    #b7c3d0;
+$muted:    #7f8da0;
+$brand:    #4cc2ff;
+$brand-d:  #1f6feb;
+$ok:       #3fb950;
+$warn:     #d29922;
+$danger:   #f85149;
+$purple:   #bc8cff;
+$teal:     #2dd4bf;
+
+// ---------- 根容器 ----------
+.shell {
+  background-color: $bg;
+  padding: 0;
 }
 
-HBoxContainer {
-  Label {
-    padding-right: 8px;
-  }
+// ---------- 顶栏 ----------
+.topbar {
+  background-color: #101722;
+  border-color: $line;
+  border-width: 0 0 1px 0;
+  border-radius: 0;
+  padding: 12px 20px;
 }
+.top-row {
+  gap: 12px;
+}
+.logo {
+  background-color: $brand-d;
+  border-radius: 9px;
+  padding: 2px 10px;
+  min-height: 26px;
+}
+.logo-mark {
+  color: #ffffff;
+  font-size: 17px;
+}
+.brand {
+  color: #ffffff;
+  font-size: 20px;
+}
+.brand-sub {
+  color: $muted;
+  font-size: 13px;
+}
+.crumb {
+  color: $brand;
+  font-size: 13px;
+}
+.grow {
+  flex: 1;
+}
+
+// ---------- 侧边导航 ----------
+.sidebar {
+  background-color: #0e141d;
+  border-color: $line;
+  border-width: 0 1px 0 0;
+  border-radius: 0;
+  padding: 16px 12px;
+  width: 216px;
+}
+.nav {
+  gap: 4px;
+}
+.nav-title {
+  color: $muted;
+  font-size: 11px;
+  padding: 8px 10px 4px 10px;
+}
+.nav-item {
+  background-color: transparent;
+  border-color: transparent;
+  border-width: 1px;
+  border-radius: 9px;
+  color: $text2;
+  padding: 8px 12px;
+  font-size: 14px;
+  text-align: left;
+}
+.nav-item:hover {
+  background-color: $surface2;
+  border-color: $line;
+  color: $text;
+}
+.nav-item.active {
+  background-color: #16324a;
+  border-color: $brand;
+  color: #ffffff;
+}
+.nav-foot {
+  color: $muted;
+  font-size: 11px;
+  padding: 10px;
+}
+
+// ---------- 状态栏 ----------
+.statusbar {
+  background-color: #0e141d;
+  border-color: $line;
+  border-width: 1px 0 0 0;
+  border-radius: 0;
+  padding: 6px 20px;
+}
+.status-item {
+  color: $muted;
+  font-size: 12px;
+}
+.dot {
+  background-color: $ok;
+  border-radius: 4px;
+  width: 8px;
+  min-height: 8px;
+}
+.dot.idle {
+  background-color: $line2;
+}
+
+.divider {
+  background-color: $line;
+  min-height: 1px;
+}
+.light .divider {
+  background-color: #d0d7de;
+}
+
+// ---------- 页面骨架 ----------
+// 滚动区外层：PanelContainer 只为了拿 content_margin（VBoxContainer 不绘制 stylebox，
+// padding 在容器上没有落点）
+.content {
+  background-color: transparent;
+  padding: 24px 28px 40px 28px;
+}
+.page {
+  gap: 18px;
+}
+.page-head {
+  gap: 6px;
+}
+.page-title {
+  color: #ffffff;
+  font-size: 26px;
+}
+.page-desc {
+  color: $text2;
+  font-size: 14px;
+}
+.section {
+  gap: 10px;
+}
+.section-title {
+  color: #ffffff;
+  font-size: 17px;
+}
+.section-hint {
+  color: $muted;
+  font-size: 12px;
+}
+.row {
+  gap: 10px;
+}
+.row-center {
+  gap: 10px;
+  justify-content: center;
+}
+.wrap {
+  gap: 8px;
+}
+.grid {
+  gap: 14px 14px;
+}
+// 网格里的卡片默认等宽：flex 映射到 size_flags_horizontal，
+// GridContainer 会把多余宽度按 grow 分给带 EXPAND_FILL 的列
+.grid > * {
+  flex: 1;
+}
+
+// ---------- 卡片 ----------
+.card {
+  background-color: $surface;
+  border-color: $line;
+  border-width: 1px;
+  border-radius: 12px;
+  padding: 18px;
+}
+.card-inner {
+  gap: 10px;
+}
+.card-hover {
+  cursor: pointer;
+}
+// 卡片式入口：PanelContainer 撑尺寸，.tile-hit 是铺满的 flat Button，只负责交互。
+// hover / pressed 必须画在 .tile-hit 上：Button 盖在上层，PanelContainer 拿不到 mouse_entered。
+.card-btn {
+  background-color: $surface;
+  border-color: $line;
+  border-width: 1px;
+  border-radius: 12px;
+  padding: 16px;
+}
+.tile-hit {
+  cursor: pointer;
+}
+.tile-hit:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+}
+.tile-hit:pressed {
+  background-color: rgba(76, 194, 255, 0.14);
+  border-radius: 12px;
+}
+.tile-inner {
+  gap: 6px;
+}
+.card-hover:hover {
+  background-color: $surface2;
+  border-color: $line2;
+}
+.card-title {
+  color: #ffffff;
+  font-size: 16px;
+}
+.card-desc {
+  color: $text2;
+  font-size: 13px;
+}
+.card-foot {
+  color: $muted;
+  font-size: 12px;
+}
+.panel {
+  background-color: $surface;
+  border-color: $line;
+  border-width: 1px;
+  border-radius: 12px;
+  padding: 16px;
+}
+.panel-inset {
+  background-color: $bg-deep;
+  border-color: $line;
+  border-width: 1px;
+  border-radius: 9px;
+  padding: 12px;
+}
+// 404 卡片：width 落点是 custom_minimum_size.x（只有下界），配合 SHRINK_BEGIN 停在固定宽
+.notfound {
+  width: 520px;
+}
+
+// ---------- 文本 ----------
+// 折行（white-space 映射到 autowrap_mode）在 Godot 里是把双刃剑，两边都踩过：
+//   不折行 → 最小宽度 = 整行文本宽度，中文没空格，整条容器链被顶宽；
+//   折行   → 最小宽度跌到 1px，在 HBox 里拿不到 EXPAND 的 Label 会被压成一列竖排文字。
+// 所以按容器区分：竖排里默认折行（长段落不能撑宽窗口），横排里默认不折行（值 / 单位 /
+// 角标这类短文本就该占自然宽度），确实要在横排里折行的加 .wrap。
+Label {
+  white-space: normal;
+}
+HBoxContainer > Label {
+  white-space: nowrap;
+}
+// 只有 Label 有 autowrap_mode；写成 .wrap 会让 HBoxContainer.wrap 白告一条警
+Label.wrap {
+  white-space: normal;
+}
+.chip,
+.brand,
+.brand-sub,
+.crumb,
+.logo-mark,
+.nav-title,
+.status-item,
+.tile-value {
+  white-space: nowrap;
+}
+.h1 { color: #ffffff; font-size: 30px; }
+.h2 { color: #ffffff; font-size: 20px; }
+.h3 { color: #ffffff; font-size: 16px; }
+.body { color: $text2; font-size: 14px; }
+.muted { color: $muted; font-size: 13px; }
+.tiny { color: $muted; font-size: 11px; }
+.strong { color: #ffffff; font-size: 14px; }
+.accent { color: $brand; }
+.ok { color: $ok; }
+.warn { color: $warn; }
+.danger { color: $danger; }
+.purple { color: $purple; }
+.center { text-align: center; }
+.wrap-text { white-space: normal; }
+
+// ---------- 徽标 / 标签 ----------
+.chip {
+  background-color: $surface3;
+  border-color: $line2;
+  border-width: 1px;
+  border-radius: 999px;
+  color: $text2;
+  font-size: 12px;
+  padding: 2px 10px;
+}
+.chip.brand { background-color: #14304a; border-color: $brand; color: $brand; }
+.chip.ok { background-color: #123122; border-color: $ok; color: $ok; }
+.chip.warn { background-color: #33270d; border-color: $warn; color: $warn; }
+.chip.danger { background-color: #341a1a; border-color: $danger; color: $danger; }
+.chip.purple { background-color: #2a1f3d; border-color: $purple; color: $purple; }
+
+// ---------- 数值块 ----------
+.tile {
+  background-color: $surface;
+  border-color: $line;
+  border-width: 1px;
+  border-radius: 12px;
+  padding: 14px;
+  min-width: 110px;
+}
+.tile-label { color: $muted; font-size: 11px; }
+.tile-value { color: #ffffff; font-size: 24px; }
+.tile-unit { color: $muted; font-size: 11px; }
+
+// ---------- 按钮 ----------
+Button {
+  background-color: $surface2;
+  border-color: $line2;
+  border-width: 1px;
+  border-radius: 9px;
+  color: $text;
+  font-size: 14px;
+  padding: 7px 14px;
+  cursor: pointer;
+}
+Button:hover {
+  background-color: $surface3;
+  border-color: $brand;
+  color: #ffffff;
+}
+Button:pressed {
+  background-color: $brand-d;
+  border-color: $brand;
+  color: #ffffff;
+}
+Button:focus {
+  border-color: $brand;
+}
+// 禁用态：CSS 的 :disabled 在 Godot 里没有对应的信号，样式运行时无法自动重算，
+// 所以用普通类 .off + [class.off] 绑定，而不是 :disabled 伪类。
+Button.primary {
+  background-color: $brand-d;
+  border-color: #4d8ff5;
+  color: #f2f8ff;
+}
+Button.primary:hover {
+  background-color: $brand;
+  border-color: $brand;
+  color: #06263d;
+}
+Button.ghost {
+  background-color: transparent;
+  border-color: $line2;
+  color: $text2;
+}
+Button.ghost:hover {
+  background-color: $surface2;
+  border-color: $line2;
+  color: $text;
+}
+Button.sm {
+  font-size: 12px;
+  padding: 3px 10px;
+}
+Button.danger {
+  background-color: #2a1517;
+  border-color: #6b2b2b;
+  color: #ffb4ab;
+}
+Button.danger:hover {
+  background-color: #3d1d20;
+  border-color: $danger;
+}
+
+// 禁用态放在所有变体之后：Button.x.off 比 Button.x 多一个类，特异度更赢，
+// 所以 .primary.off 不会仍顶着主色。CheckButton 在 Godot 里是独立主题类，要单独列。
+Button.off,
+Button.off:hover,
+Button.off:pressed,
+Button.primary.off,
+Button.ghost.off,
+Button.danger.off,
+CheckButton.off {
+  background-color: $surface;
+  border-color: $line;
+  color: $muted;
+}
+
+// ---------- 输入控件 ----------
+LineEdit {
+  background-color: #0e141d;
+  border-color: $line2;
+  border-width: 1px;
+  border-radius: 8px;
+  color: $text;
+  font-size: 14px;
+  padding: 6px 10px;
+  caret-color: $brand;
+}
+LineEdit:focus {
+  border-color: $brand;
+}
+TextEdit {
+  background-color: #0e141d;
+  border-color: $line2;
+  border-width: 1px;
+  border-radius: 8px;
+  color: $text;
+  font-size: 13px;
+  padding: 8px 10px;
+  caret-color: $brand;
+}
+TextEdit:focus {
+  border-color: $brand;
+}
+OptionButton {
+  background-color: #0e141d;
+  border-color: $line2;
+  border-width: 1px;
+  border-radius: 8px;
+  color: $text;
+  font-size: 14px;
+  padding: 5px 10px;
+}
+OptionButton:hover {
+  border-color: $brand;
+}
+ItemList {
+  background-color: #0e141d;
+  border-color: $line2;
+  border-width: 1px;
+  border-radius: 8px;
+  color: $text2;
+  font-size: 13px;
+  padding: 6px;
+}
+CheckBox, CheckButton {
+  color: $text2;
+  font-size: 14px;
+}
+CheckBox:hover, CheckButton:hover {
+  color: #ffffff;
+}
+HSlider {
+  min-width: 180px;
+}
+SpinBox {
+  min-width: 110px;
+}
+ProgressBar {
+  background-color: #0e141d;
+  border-color: $line;
+  border-width: 1px;
+  border-radius: 6px;
+  color: #ffffff;
+  font-size: 11px;
+  min-height: 16px;
+}
+LinkButton {
+  color: $brand;
+  font-size: 13px;
+}
+LinkButton:hover {
+  color: #8fd8ff;
+}
+TabContainer {
+  font-size: 13px;
+}
+
+// ---------- 代码块 ----------
+.code {
+  background-color: $bg-deep;
+  border-color: $line;
+  border-width: 1px;
+  border-radius: 9px;
+  padding: 12px;
+  color: #c9d5e3;
+  font-size: 12px;
+}
+.code-inline {
+  background-color: #101823;
+  border-radius: 5px;
+  color: #9ecbff;
+  font-size: 12px;
+  padding: 1px 6px;
+}
+.note {
+  background-color: #101c26;
+  border-color: #1f4d63;
+  border-width: 1px;
+  border-radius: 9px;
+  color: #a9d6ef;
+  font-size: 13px;
+  padding: 10px 14px;
+}
+
+// ---------- 演示舞台（自由定位，非容器） ----------
+.stage {
+  background-color: #0a0f16;
+  border-color: $line;
+  border-width: 1px;
+  border-radius: 12px;
+  min-height: 240px;
+}
+.ball {
+  background-color: $brand;
+  border-radius: 10px;
+  width: 56px;
+  min-height: 56px;
+  cursor: pointer;
+}
+.ball:hover {
+  background-color: #7ad6ff;
+}
+.bar {
+  background-color: $brand;
+  border-radius: 3px;
+  width: 9px;
+  min-height: 2px;
+}
+.chart {
+  gap: 3px;
+  min-height: 96px;
+}
+.ball.alt {
+  background-color: $purple;
+}
+.ball.alt:hover {
+  background-color: #d7b8ff;
+}
+.bar.warn {
+  background-color: $warn;
+}
+.hr {
+  background-color: $line;
+  min-height: 1px;
+}
+.vr {
+  background-color: $line;
+  width: 1px;
+}
+
+// ---------- 列表行 ----------
+.list {
+  gap: 6px;
+}
+.list-row {
+  background-color: $surface2;
+  border-color: $line;
+  border-width: 1px;
+  border-radius: 9px;
+  padding: 8px 12px;
+}
+.list-row:hover {
+  border-color: $line2;
+}
+.list-row.done {
+  background-color: #101a14;
+  border-color: #1f4d33;
+}
+.list-row.active {
+  border-color: $brand;
+  background-color: #12212e;
+}
+
+// ---------- 键值表 ----------
+.kv-key {
+  color: $muted;
+  font-size: 12px;
+}
+.kv-val {
+  color: $text;
+  font-size: 13px;
+}
+
+// ---------- 首页 hero ----------
+.hero {
+  background-color: #101c26;
+  border-color: #1f4d63;
+  border-width: 1px;
+  border-radius: 14px;
+  padding: 26px;
+}
+.hero-inner {
+  gap: 12px;
+}
+.hero-sub {
+  color: #9ecbff;
+  font-size: 15px;
+}
+
+// ---------- 表单 ----------
+.form-grid {
+  gap: 12px;
+}
+.field {
+  gap: 4px;
+}
+.field-label {
+  color: $muted;
+  font-size: 12px;
+}
+.field-row {
+  gap: 8px;
+}
+.err {
+  color: $danger;
+  font-size: 12px;
+}
+.ok-text {
+  color: $ok;
+  font-size: 12px;
+}
+.stepper-value {
+  background-color: #0e141d;
+  border-color: $line2;
+  border-width: 1px;
+  border-radius: 8px;
+  padding: 4px 18px;
+  min-width: 74px;
+}
+
+// ---------- 日志 / 输出 ----------
+.log {
+  background-color: $bg-deep;
+  border-color: $line;
+  border-width: 1px;
+  border-radius: 9px;
+  padding: 10px;
+  min-height: 96px;
+}
+.log-inner {
+  gap: 2px;
+}
+.log-line {
+  color: #8fb98f;
+  font-size: 12px;
+}
+.kv {
+  gap: 10px;
+}
+.swatch {
+  border-color: $line2;
+  border-width: 1px;
+  border-radius: 10px;
+  min-height: 54px;
+  width: 54px;
+}
+
+// ---------- 媒体查询：窗口宽度变化时自动改布局 ----------
+@media (max-width: 980px) {
+  .sidebar { width: 168px; }
+  .content { padding: 16px 18px 32px 18px; }
+  .brand-sub { visibility: hidden; }
+}
+@media (min-width: 1500px) {
+  .content { padding: 30px 44px 48px 44px; }
+  .card { padding: 22px; }
+}
+
+// ============================================================================
+// 浅色主题：只覆盖需要换色的选择器，其余继承上面的规则
+// 通过 [class.light] 挂在 .shell 上，靠后代选择器生效
+// ==========================================================================
+.shell.light { background-color: #eef1f5; }
+.light .topbar { background-color: #ffffff; border-color: #d8dee6; }
+.light .brand { color: #14202e; }
+.light .logo { background-color: $brand-d; }
+.light .crumb { color: #0a6bb5; }
+.light .sidebar { background-color: #f7f9fb; border-color: #d8dee6; }
+.light .statusbar { background-color: #f7f9fb; border-color: #d8dee6; }
+.light .nav-item { color: #3c4a5c; }
+.light .nav-item:hover { background-color: #e9eef4; border-color: #cfd8e3; color: #14202e; }
+.light .nav-item.active { background-color: #dcecff; border-color: #6cb2f5; color: #0b3f68; }
+.light .card-btn { background-color: #ffffff; border-color: #dde3ea; }
+.light .tile-hit:hover { background-color: rgba(20, 32, 46, 0.05); }
+.light .tile-hit:pressed { background-color: rgba(45, 143, 245, 0.14); }
+.light .card { background-color: #ffffff; border-color: #dde3ea; }
+.light .card-title { color: #14202e; }
+.light .card-desc { color: #3c4a5c; }
+.light .tile { background-color: #ffffff; border-color: #dde3ea; }
+.light .tile-value { color: #14202e; }
+.light .panel-inset { background-color: #f2f5f8; border-color: #dde3ea; }
+.light .panel { background-color: #ffffff; border-color: #dde3ea; }
+.light .page-title, .light .h1, .light .h2, .light .h3,
+.light .section-title, .light .strong, .light .kv-val { color: #14202e; }
+.light .page-desc, .light .body { color: #3c4a5c; }
+.light .accent { color: #0a6bb5; }
+.light .note { color: #17415c; }
+.light .muted, .light .tiny, .light .tile-label, .light .section-hint, .light .nav-title, .light .status-item, .light .card-foot { color: #6a7789; }
+.light Button {
+  background-color: #ffffff;
+  border-color: #cfd8e3;
+  color: #22303f;
+}
+.light Button:hover { background-color: #eaf2fb; border-color: #7db8ef; color: #0b3f68; }
+.light Button.primary { background-color: $brand-d; border-color: $brand-d; color: #ffffff; }
+.light Button.primary:hover { background-color: #1a63d6; color: #ffffff; }
+.light LineEdit, .light TextEdit, .light OptionButton, .light ItemList {
+  background-color: #ffffff;
+  border-color: #cfd8e3;
+  color: #22303f;
+}
+// CheckBox / CheckButton 的文字色默认是深色主题的 $text2，落在白底卡片上对比度不够
+.light CheckBox, .light CheckButton {
+  color: #22303f;
+}
+.light .code, .light .code-inline { background-color: #f4f6f9; border-color: #dde3ea; color: #2b3a4a; }
+.light .note { background-color: #eaf4fb; border-color: #a9d3ef; color: #17415c; }
+.light .chip { background-color: #eef2f6; border-color: #cfd8e3; color: #3c4a5c; }
+.light .list-row { background-color: #ffffff; border-color: #dde3ea; }
+.light .list-row.done { background-color: #eef7f0; border-color: #b6ddc2; }
+.light .stage { background-color: #ffffff; border-color: #dde3ea; }
+.light .hr, .light .vr { background-color: #dde3ea; }
+.light .ball { background-color: $brand-d; }
+.light .hero { background-color: #e6f1fb; border-color: #a9d3ef; }
+.light .hero-sub { color: #17415c; }
+.light .log { background-color: #f4f6f9; border-color: #dde3ea; }
+.light .log-line { color: #2f6b3a; }
+.light .stepper-value { background-color: #ffffff; border-color: #cfd8e3; }
+.light .swatch { border-color: #cfd8e3; }
+.light .chip.brand { background-color: #dcecff; border-color: #6cb2f5; color: #0b3f68; }
+.light .dot { background-color: #1f9d55; }

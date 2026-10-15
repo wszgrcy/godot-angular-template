@@ -1,0 +1,49 @@
+<ui-page
+  [title]="'godot-angular'"
+  [desc]="'组件模板被编译成 Godot 的 Control 节点树：没有 WebView，没有 GDScript 界面代码，浏览器全局一个也不需要。下面是这套映射能做到的事。'"
+  [tags]="['Angular 22', 'zoneless', 'AOT', 'GodotJS / V8']">
+  <PanelContainer class="hero">
+    <VBoxContainer class="hero-inner">
+      <Label class="h1" text="写的是 Angular，跑的是引擎节点"></Label>
+      <Label
+        class="hero-sub"
+        text="&lt;Button&gt; 变成 BaseButton，[text] 变成节点属性，(click) 接上 pressed 信号，.card { border-radius } 变成 StyleBoxFlat 的 corner_radius。"></Label>
+      <HBoxContainer class="row">
+        <Button class="primary" text="从模板语法开始" (click)="open('/template')"></Button>
+        <Button text="看引擎互操作" (click)="open('/interop')"></Button>
+        <Button class="ghost" text="样式与主题" (click)="open('/styles')"></Button>
+      </HBoxContainer>
+    </VBoxContainer>
+  </PanelContainer>
+
+  <ui-section
+    [title]="'运行时'"
+    [hint]="'这些数字每 100ms 采样一次，来源是 Performance / OS / Engine 单例；能跳动就说明 main.ts 的 _process() 正在调用 tick()'">
+    <GridContainer class="grid" [columns]="statCols()">
+      <ui-stat [label]="'FPS'" [value]="rt.fpsText()" [unit]="'frames / s'"></ui-stat>
+      <ui-stat [label]="'帧耗时'" [value]="rt.msText()" [unit]="'ms'"></ui-stat>
+      <ui-stat [label]="'已处理帧'" [value]="rt.frames()" [unit]="'帧'"></ui-stat>
+      <ui-stat [label]="'运行时长'" [value]="rt.uptimeText()"></ui-stat>
+      <ui-stat [label]="'Control 节点'" [value]="rt.nodes()" [unit]="'个'"></ui-stat>
+      <ui-stat [label]="'资源对象'" [value]="rt.resources()" [unit]="'个'"></ui-stat>
+      <ui-stat [label]="'进程内存'" [value]="rt.memText()"></ui-stat>
+      <ui-stat [label]="'窗口'" [value]="rt.winText()"></ui-stat>
+    </GridContainer>
+  </ui-section>
+
+  <ui-section
+    [title]="'能力地图'"
+    [hint]="'每张卡片是一个可交互的演示页，列数随窗口宽度变化（GridContainer.columns 由组件计算，CSS 改不了它）'">
+    <GridContainer class="grid" [columns]="cols()">
+      @for (item of tiles; track item.path) {
+      <ui-tile [title]="item.label" [desc]="item.desc" [tag]="item.tag" (go)="open(item.path)"></ui-tile>
+      }
+    </GridContainer>
+  </ui-section>
+
+  <ui-section
+    [title]="'渲染管线'"
+    [hint]="'构建产物是 CommonJS，由引擎内置的 V8 直接 require，全程没有 HTML 解析器'">
+    <ui-code [code]="pipeline"></ui-code>
+  </ui-section>
+</ui-page>

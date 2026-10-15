@@ -1,0 +1,14 @@
+/* Component-scoped stylesheet: compiled into scoped rules that only match nodes
+ * declared inside ui-card's template. --card-accent gets a namespace prefix at
+ * build time and is resolved at runtime by walking the ancestor chain. */
+.card-inner {
+  --card-accent: #4cc2ff;
+  gap: 8px;
+}
+
+.card-accent {
+  background-color: var(--card-accent, #4cc2ff);
+  border-radius: 2px;
+  width: 34px;
+  min-height: 3px;
+}

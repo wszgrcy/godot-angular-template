@@ -1,0 +1,124 @@
+<ui-page
+  [title]="'模板语法'"
+  [desc]="'模板里写的仍然是 Angular 的语法，只是每个标签最终对应一个 Control 节点。小写标签走别名表，大写标签按类名原样创建。'"
+  [tags]="['插值', '属性绑定', '@if / @for / @switch', 'ng-content', 'viewChild']">
+  <GridContainer class="grid" [columns]="2">
+    <ui-card [title]="'插值与属性绑定'" [desc]="'插值生成一个 Label 节点；[text] 是把值写进已有节点的属性'">
+      <VBoxContainer class="section">
+        <Label
+          [text]="'你好，' + name() + '！'"
+          [style.color]="toneColor()"
+          [style.fontSize]="size()"></Label>
+        <HBoxContainer class="field-row">
+          <Label class="field-label" text="字号"></Label>
+          <HSlider [min_value]="14" [max_value]="48" [step]="1" [value]="size()" (change)="onSlider($event)"></HSlider>
+          <Label class="tiny" [text]="size() + 'px'"></Label>
+        </HBoxContainer>
+        <HBoxContainer class="row">
+          @for (c of tones; track c; let i = $index) {
+          <Button class="sm" [text]="'色 ' + (i + 1)" (click)="tone.set(i)"></Button>
+          }
+          <Button class="sm ghost" text="换个名字" (click)="rename()"></Button>
+        </HBoxContainer>
+      </VBoxContainer>
+    </ui-card>
+
+    <ui-card [title]="'@if / @else'" [desc]="'条件为假时节点被移出节点树并 queue_free，不是 visible = false'">
+      <VBoxContainer class="section">
+        <Button text="切换 show()" (click)="show.update((v) => !v)"></Button>
+        @if (show()) {
+        <Label class="ok-text" text="@if 为真：这个 Label 此刻真实存在"></Label>
+        } @else {
+        <Label class="muted" text="@else 分支：上一个节点已经被释放"></Label>
+        }
+        <Panel class="divider"></Panel>
+        <Label class="tiny" text="节点数变化可以在首页「运行时」的 Control 节点数上看到"></Label>
+      </VBoxContainer>
+    </ui-card>
+
+    <ui-card [title]="'@for + track + @empty'" [desc]="'track 用 id，增删时节点会被复用而不是整列重建'">
+      <VBoxContainer class="section">
+        <HBoxContainer class="row">
+          <Button class="sm" text="追加" (click)="add()"></Button>
+          <Button class="sm ghost" text="移除首个" (click)="remove()"></Button>
+          <Button class="sm ghost" text="清空" (click)="clear()"></Button>
+        </HBoxContainer>
+        <VBoxContainer class="list">
+          @for (r of rows(); track r.id) {
+          <PanelContainer class="list-row" [class.done]="r.done">
+            <HBoxContainer class="row">
+              <CheckBox [text]="r.text" [button_pressed]="r.done" (change)="toggleRow(r.id, $event)"></CheckBox>
+              <Control [size_flags_horizontal]="expand"></Control>
+              <Label class="tiny" [text]="'#' + r.id"></Label>
+            </HBoxContainer>
+          </PanelContainer>
+          } @empty {
+          <Label class="muted" text="@empty：列表空了"></Label>
+          }
+        </VBoxContainer>
+      </VBoxContainer>
+    </ui-card>
+
+    <ui-card [title]="'@switch'" [desc]="'与 @if 一样是结构指令，切换时重建分支内的节点'">
+      <VBoxContainer class="section">
+        <HBoxContainer class="row">
+          <Button class="sm" text="cycle" (click)="mode.set(mode() === 'a' ? 'b' : mode() === 'b' ? 'c' : 'a')"></Button>
+          <Label class="tiny" [text]="'当前：' + mode()"></Label>
+        </HBoxContainer>
+        @switch (mode()) {
+        @case ("a") {
+        <Label class="accent" text="模式 A"></Label>
+        }
+        @case ("b") {
+        <Label class="ok-text" text="模式 B"></Label>
+        }
+        @default {
+        <Label class="warn" text="默认分支"></Label>
+        }
+        }
+      </VBoxContainer>
+    </ui-card>
+
+    <ui-card [title]="'class 与 style 绑定'" [desc]="'class 在帧末重算级联；[style.x] 是内联层，优先级高于样式表'">
+      <VBoxContainer class="section">
+        <Label
+          class="h3"
+          [class.warn]="busy()"
+          [class.accent]="!busy()"
+          [text]="busy() ? 'busy() = true → .warn' : 'busy() = false → .accent'"></Label>
+        <Label text="这条走内联 style" [style.color]="'#ff9f45'" [style.fontSize]="20"></Label>
+        <Button text="切换 busy()" (click)="busy.update((v) => !v)"></Button>
+      </VBoxContainer>
+    </ui-card>
+
+    <ui-card [title]="'ng-content 投影'" [desc]="'三个槽位：.head、默认、.foot。投影匹配看 class，不看标签名'">
+      <Label class="head chip brand" text="落在 .head 槽位"></Label>
+      <Label class="body" text="没有 class 的节点落在默认槽位"></Label>
+      <Label class="foot card-foot" text="落在 .foot 槽位"></Label>
+    </ui-card>
+
+    <ui-card [title]="'$event 的真实语义'" [desc]="'Godot 信号不携带事件对象，实参个数永远与引擎信号一致'">
+      <VBoxContainer class="section">
+        <ui-kv [k]="'Button (click)'" [v]="'pressed() → undefined'"></ui-kv>
+        <ui-kv [k]="'LineEdit (input)'" [v]="'text_changed(new_text) → string'"></ui-kv>
+        <ui-kv [k]="'HSlider (change)'" [v]="'value_changed(v) → number'"></ui-kv>
+        <ui-kv [k]="'CheckBox (change)'" [v]="'toggled(on) → boolean'"></ui-kv>
+        <ui-kv [k]="'Control (gui_input)'" [v]="'gui_input(event) → InputEvent'"></ui-kv>
+        <LineEdit placeholder_text="输入点什么，看看 text_changed" (input)="onInput($event)"></LineEdit>
+        <Label class="muted" [text]="lastEvent()"></Label>
+      </VBoxContainer>
+    </ui-card>
+
+    <ui-card [title]="'模板引用变量 + viewChild()'" [desc]="'nativeElement 就是那个 Godot 节点，不是 DOM 包装'">
+      <VBoxContainer class="section">
+        <Label #tag class="chip purple" text="我就是一个 Label 节点"></Label>
+        <Button text="读取 nativeElement" (click)="readTag()"></Button>
+        <Label class="muted" [text]="readResult()"></Label>
+      </VBoxContainer>
+    </ui-card>
+  </GridContainer>
+
+  <ui-section [title]="'这一页用到的写法'">
+    <ui-code [code]="snippet"></ui-code>
+  </ui-section>
+</ui-page>

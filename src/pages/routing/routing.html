@@ -1,0 +1,65 @@
+<ui-page
+  [title]="'路由'"
+  [desc]="'@angular/router 原样可用，平台差异收敛在三个 token 上：内存历史栈、空 ViewportScroller、写窗口标题的 TitleStrategy。'"
+  [tags]="['provideGodotRouter', '参数路由', 'query', 'route.title', '404']">
+  <GridContainer class="grid" [columns]="2">
+    <ui-card [title]="'当前位置'" [desc]="'每次 NavigationEnd 重新读取'">
+      <VBoxContainer class="section">
+        <ui-kv [k]="'Location.path()'" [v]="path()"></ui-kv>
+        <ui-kv [k]="'paramMap.id'" [v]="itemId() ?? '（无参数）'"></ui-kv>
+        <ui-kv [k]="'queryParamMap.q'" [v]="q()"></ui-kv>
+        <ui-kv [k]="'route.title → 标题策略'" [v]="winTitle()"></ui-kv>
+      </VBoxContainer>
+    </ui-card>
+
+    <ui-card [title]="'历史导航'" [desc]="'Location.back() / forward() 有效，但历史栈活在内存里，进程结束即消失'">
+      <VBoxContainer class="section">
+        <HBoxContainer class="row">
+          <Button text="← 后退" (click)="back()"></Button>
+          <Button class="ghost" text="前进 →" (click)="forward()"></Button>
+          <Button class="ghost" text="跳到一个不存在的路径" (click)="notFound()"></Button>
+        </HBoxContainer>
+        <Label class="muted" text="起始 URL 由 GODOT_INITIAL_URL 提供，可以从启动参数里解析深链。"></Label>
+      </VBoxContainer>
+    </ui-card>
+
+    <ui-card [title]="'参数路由'" [desc]="'只改参数时组件实例被复用，读 snapshot 不会刷新，必须订阅 paramMap'">
+      <VBoxContainer class="section">
+        <HBoxContainer class="row">
+          @for (id of [1, 2, 3]; track id) {
+          <Button class="sm" [text]="'打开 #' + id" (click)="openItem(id)"></Button>
+          }
+        </HBoxContainer>
+        @if (itemId()) {
+        <Label class="ok-text" [text]="'当前 id = ' + itemId() + '，组件实例自始至终是同一个'"></Label>
+        } @else {
+        <Label class="muted" text="点一个进入 /routing/:id"></Label>
+        }
+      </VBoxContainer>
+    </ui-card>
+
+    <ui-card [title]="'query 参数'" [desc]="'navigate 的第二个参数，读 queryParamMap'">
+      <VBoxContainer class="section">
+        <HBoxContainer class="row">
+          <Button class="sm" text="q = alpha" (click)="withQuery('alpha')"></Button>
+          <Button class="sm" text="q = beta" (click)="withQuery('beta')"></Button>
+        </HBoxContainer>
+        <ui-kv [k]="'当前 q'" [v]="q()"></ui-kv>
+      </VBoxContainer>
+    </ui-card>
+
+    <ui-card [title]="'与浏览器版的差别'" [desc]="'都是明确的边界，不是没做完'">
+      <VBoxContainer class="list">
+        <ui-kv [k]="'routerLink'" [v]="'不支持：pressed() 零参数，读不到 $event.button'"></ui-kv>
+        <ui-kv [k]="'懒加载'" [v]="'不支持：运行期没有动态 import()'"></ui-kv>
+        <ui-kv [k]="'URL 持久化'" [v]="'无地址栏，重启回到起始 URL'"></ui-kv>
+        <ui-kv [k]="'withHashLocation()'" [v]="'可用'"></ui-kv>
+        <ui-kv [k]="'URL / URLSearchParams'" [v]="'可用，库会把它们装到全局'"></ui-kv>
+      </VBoxContainer>
+    </ui-card>
+  </GridContainer>
+
+  <ui-section [title]="'写法'">
+    <ui-code [code]="snippet"></ui-code>
+  </ui-section>
+</ui-page>

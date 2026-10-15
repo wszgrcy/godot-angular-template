@@ -1,0 +1,106 @@
+<ui-page
+  [title]="'引擎互操作'"
+  [desc]="'模板之外，还能直接拿到节点对象。viewChild 给出的 nativeElement 就是引擎节点本身，属性随便写；浏览器里熟悉的那几个 JS API 由构建器注入的 polyfill 补齐。'"
+  [tags]="['viewChild', 'requestAnimationFrame', 'Tween', 'InputEvent', 'Web API']">
+  <ui-section
+    [title]="'用 JS 直接驱动节点'"
+    [hint]="'rAF 回调由 main.ts 的 tick() 放行，和变更检测同一个心跳；Tween 则是引擎自己的动画系统'">
+    <HBoxContainer class="row">
+      <PanelContainer class="stage" [size_flags_horizontal]="expand">
+        <Control class="stage-inner" #stage [clip_contents]="true">
+          <Panel class="ball" #ball [mouse_filter]="2"></Panel>
+          <Panel class="ball alt" #drag mouse_filter="0" (gui_input)="onGui($event)"></Panel>
+        </Control>
+      </PanelContainer>
+      <VBoxContainer class="section">
+        <Button class="primary" [text]="animating() ? '停止 rAF 动画' : '开始 rAF 动画'" (click)="toggleAnim()"></Button>
+        <Button text="Tween 挤压一下" (click)="bounce()"></Button>
+        <Label class="muted" [text]="lastInput()"></Label>
+        <Label class="tiny" text="紫色方块可以按住拖动：(gui_input) 递来的是真正的 InputEvent，带坐标与按键"></Label>
+        <Label class="tiny" text="蓝色方块被 rAF 改写 rotation / position / scale"></Label>
+      </VBoxContainer>
+    </HBoxContainer>
+  </ui-section>
+
+  <GridContainer class="grid" [columns]="2">
+    <ui-card [title]="'剪贴板'" [desc]="'DisplayServer.clipboard_* 就是引擎版的 navigator.clipboard'">
+      <VBoxContainer class="section">
+        <LineEdit [text]="clipText()" (input)="clipText.set($event)"></LineEdit>
+        <HBoxContainer class="row">
+          <Button text="写入剪贴板" (click)="copy()"></Button>
+          <Button class="ghost" text="读回来" (click)="paste()"></Button>
+        </HBoxContainer>
+        <Label class="muted" [text]="clipMsg()"></Label>
+      </VBoxContainer>
+    </ui-card>
+
+    <ui-card [title]="'没有的那些浏览器全局'" [desc]="'不是静默失败，而是明确缺位：构建器只补纯 JS 能实现的部分'">
+      <VBoxContainer class="list">
+        <ui-kv [k]="'document / DOM API'" [v]="'无：节点树本身就是视图'"></ui-kv>
+        <ui-kv [k]="'window / location'" [v]="'无：路由走内存历史栈'"></ui-kv>
+        <ui-kv [k]="'fetch / XHR'" [v]="'无：改用 HTTPRequest 节点'"></ui-kv>
+        <ui-kv [k]="'localStorage'" [v]="'无：改用 ConfigFile + user://'"></ui-kv>
+        <ui-kv [k]="'MutationObserver'" [v]="'无：用 tree_entered / child_entered_tree'"></ui-kv>
+      </VBoxContainer>
+    </ui-card>
+
+    <ui-card [title]="'没有 navigator'" [desc]="'OS / Engine 提供同样的信息'">
+      <VBoxContainer class="list">
+        @for (r of platform; track r.api) {
+        <PanelContainer class="list-row">
+          <VBoxContainer class="row">
+            <HBoxContainer class="row">
+              <Label class="kv-val" [size_flags_horizontal]="expand" [text]="r.web"></Label>
+              <Label class="ok-text" [text]="r.value"></Label>
+            </HBoxContainer>
+            <Label class="tiny" [text]="r.api"></Label>
+          </VBoxContainer>
+        </PanelContainer>
+        }
+      </VBoxContainer>
+    </ui-card>
+
+    <ui-card [title]="'没有 screen 与 WebGL 扩展'" [desc]="'DisplayServer / RenderingServer / AudioServer'">
+      <VBoxContainer class="list">
+        @for (r of display; track r.api) {
+        <PanelContainer class="list-row">
+          <VBoxContainer class="row">
+            <HBoxContainer class="row">
+              <Label class="kv-val" [size_flags_horizontal]="expand" [text]="r.web"></Label>
+              <Label class="ok-text" [text]="r.value"></Label>
+            </HBoxContainer>
+            <Label class="tiny" [text]="r.api"></Label>
+          </VBoxContainer>
+        </PanelContainer>
+        }
+      </VBoxContainer>
+    </ui-card>
+  </GridContainer>
+
+  <ui-section
+    [title]="'浏览器 API 试跑'"
+    [hint]="'构建器自动注入的补丁补齐了 URL / URLSearchParams / performance / rAF / queueMicrotask / atob / 定时器'">
+    <PanelContainer class="panel">
+      <VBoxContainer class="list">
+        @for (t of tries; track t.name; let i = $index) {
+        <PanelContainer class="list-row">
+          <HBoxContainer class="row">
+            <VBoxContainer [size_flags_horizontal]="expand">
+              <Label class="strong" [text]="t.name"></Label>
+              <Label class="tiny" [text]="t.api"></Label>
+              @if (outs()[i]) {
+              <Label class="ok-text" [text]="outs()[i]"></Label>
+              }
+            </VBoxContainer>
+            <Button class="sm" text="试一下" (click)="run(i)"></Button>
+          </HBoxContainer>
+        </PanelContainer>
+        }
+      </VBoxContainer>
+    </PanelContainer>
+  </ui-section>
+
+  <ui-section [title]="'写法'">
+    <ui-code [code]="snippet"></ui-code>
+  </ui-section>
+</ui-page>

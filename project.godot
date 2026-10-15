@@ -13,3 +13,10 @@ config_version=5
 config/name="godot-angular demo"
 run/main_scene="res://main.tscn"
 config/features=PackedStringArray("4.6")
+
+[display]
+
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"

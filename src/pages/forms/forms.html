@@ -1,0 +1,157 @@
+<ui-page
+  [title]="'表单'"
+  [desc]="'内置指令按 ControlValueAccessor 协议接入 @angular/forms，值属性与变更信号都取自引擎的真实签名。未包裹在 form 里的 ngModel 必须声明 standalone。'"
+  [tags]="['ngModel', 'ControlValueAccessor', '自定义复合控件', '校验']">
+  <GridContainer class="grid" [columns]="2">
+    <ui-card [title]="'文本'" [desc]="'GodotLineEditValueAccessor 写 text，监听 text_changed'">
+      <VBoxContainer class="form-grid">
+        <VBoxContainer class="field">
+          <Label class="field-label" text="名称（校验：至少 3 个字符）"></Label>
+          <LineEdit
+            [ngModel]="form().name"
+            (ngModelChange)="patch('name', $event)"
+            [ngModelOptions]="{ standalone: true }"></LineEdit>
+          @if (nameErr()) {
+          <Label class="err" [text]="nameErr()"></Label>
+          }
+        </VBoxContainer>
+        <VBoxContainer class="field">
+          <Label class="field-label" text="邮箱（校验：非空且含 @）"></Label>
+          <LineEdit
+            placeholder_text="you@example.com"
+            [ngModel]="form().email"
+            (ngModelChange)="patch('email', $event)"
+            [ngModelOptions]="{ standalone: true }"></LineEdit>
+          @if (emailErr()) {
+          <Label class="err" [text]="emailErr()"></Label>
+          }
+        </VBoxContainer>
+        <VBoxContainer class="field">
+          <Label class="field-label" text="简介（TextEdit）"></Label>
+          <TextEdit
+            [custom_minimum_size]="bigSize"
+            [wrap_mode]="2"
+            [ngModel]="form().bio"
+            (ngModelChange)="patch('bio', $event)"
+            [ngModelOptions]="{ standalone: true }"></TextEdit>
+        </VBoxContainer>
+      </VBoxContainer>
+    </ui-card>
+
+    <ui-card [title]="'数值与自定义控件'" [desc]="'HSlider 与 SpinBox 的值是 number；app-stepper 是本项目自己写的 CVA'">
+      <VBoxContainer class="form-grid">
+        <VBoxContainer class="field">
+          <Label class="field-label" [text]="'音量（HSlider）= ' + form().volume"></Label>
+          <HSlider
+            [min_value]="0"
+            [max_value]="100"
+            [ngModel]="form().volume"
+            (ngModelChange)="patch('volume', $event)"
+            [ngModelOptions]="{ standalone: true }"></HSlider>
+        </VBoxContainer>
+        <HBoxContainer class="field-row">
+          <Label class="field-label" text="等级（SpinBox）"></Label>
+          <SpinBox
+            [min_value]="1"
+            [max_value]="99"
+            [suffix]="' 级'"
+            [ngModel]="form().level"
+            (ngModelChange)="patch('level', $event)"
+            [ngModelOptions]="{ standalone: true }"></SpinBox>
+        </HBoxContainer>
+        <HBoxContainer class="field-row">
+          <Label class="field-label" [size_flags_horizontal]="expand" text="步数（自定义复合控件）"></Label>
+          <app-stepper
+            [ngModel]="form().steps"
+            (ngModelChange)="patch('steps', $event)"
+            [ngModelOptions]="{ standalone: true }"></app-stepper>
+        </HBoxContainer>
+        <Label class="tiny" text="app-stepper 继承 GodotControlBase，providers 里注册 NG_VALUE_ACCESSOR"></Label>
+      </VBoxContainer>
+    </ui-card>
+
+    <ui-card [title]="'布尔'" [desc]="'值属性是 button_pressed，变更信号是 toggled(on)'">
+      <VBoxContainer class="form-grid">
+        <CheckBox
+          text="我同意把界面写成节点树"
+          [ngModel]="form().agree"
+          (ngModelChange)="patch('agree', $event)"
+          [ngModelOptions]="{ standalone: true }"></CheckBox>
+        @if (agreeErr()) {
+        <Label class="err" [text]="agreeErr()"></Label>
+        }
+        <CheckButton
+          class="off"
+          text="CheckButton 共用同一个指令"
+          [button_pressed]="true"
+          [disabled]="true"></CheckButton>
+      </VBoxContainer>
+    </ui-card>
+
+    <ui-card [title]="'候选项'" [desc]="'OptionButton 的值是下标；ItemList 的值是下标数组。候选项由指令 add_item() 填入'">
+      <VBoxContainer class="form-grid">
+        <VBoxContainer class="field">
+          <Label class="field-label" text="角色（OptionButton）"></Label>
+          <OptionButton
+            [items]="roles"
+            [selected]="form().role"
+            [ngModel]="form().role"
+            (ngModelChange)="patch('role', $event)"
+            [ngModelOptions]="{ standalone: true }"></OptionButton>
+        </VBoxContainer>
+        <VBoxContainer class="field">
+          <Label class="field-label" [text]="'标签（ItemList 多选）= ' + form().tags.join(', ')"></Label>
+          <ItemList
+            [items]="tags"
+            [selected]="form().tags"
+            select_mode="2"
+            [custom_minimum_size]="listSize"
+            [ngModel]="form().tags"
+            (ngModelChange)="patch('tags', $event)"
+            [ngModelOptions]="{ standalone: true }"></ItemList>
+        </VBoxContainer>
+      </VBoxContainer>
+    </ui-card>
+
+    <ui-card [title]="'颜色'" [desc]="'GodotColorPickerValueAccessor 整体读写 color 属性，值就是引擎的 Color 对象'">
+      <VBoxContainer class="form-grid">
+        <HBoxContainer class="row">
+          <ColorPicker
+            [edit_alpha]="true"
+            [presets_visible]="false"
+            [sliders_visible]="false"
+            [hex_visible]="false"
+            [color_modes_visible]="false"
+            [sampler_visible]="false"
+            [edit_intensity]="false"
+            [ngModel]="form().color"
+            (ngModelChange)="patch('color', $event)"
+            [ngModelOptions]="{ standalone: true }"></ColorPicker>
+          <VBoxContainer class="section">
+            <Panel class="swatch" [style.background-color]="colorCss()"></Panel>
+            <Label class="tiny" [text]="colorCss()"></Label>
+          </VBoxContainer>
+        </HBoxContainer>
+      </VBoxContainer>
+    </ui-card>
+
+    <ui-card [title]="'提交与校验'" [desc]="'valid 是 computed，错误提示随输入实时变化'">
+      <VBoxContainer class="section">
+        <HBoxContainer class="row">
+          <Button class="primary" text="提交" [class.off]="!valid()" [disabled]="!valid()" (click)="submit()"></Button>
+          <Button class="ghost" text="重置" (click)="reset()"></Button>
+        </HBoxContainer>
+        @if (submitted()) {
+        <Label class="ok-text" [text]="submitted()"></Label>
+        }
+        <ui-kv [k]="'校验状态'" [v]="valid() ? '通过' : '未通过'"></ui-kv>
+      </VBoxContainer>
+    </ui-card>
+  </GridContainer>
+
+  <ui-section
+    [title]="'模型快照'"
+    [hint]="'每次输入都会重算这个 computed，Color 被转成 rgba() 一起打印'">
+    <ui-code [code]="json()"></ui-code>
+  </ui-section>
+</ui-page>

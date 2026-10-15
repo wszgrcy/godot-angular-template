@@ -1,0 +1,120 @@
+<ui-page
+  [title]="'状态与响应式'"
+  [desc]="'只支持 zoneless：tick() 每帧刷新被标记为脏的视图，而置脏的唯一来源是 signal。所有被模板读取的状态都必须是 signal。'"
+  [tags]="['signal', 'computed', 'effect', 'linkedSignal', 'zoneless']">
+  <GridContainer class="grid" [columns]="2">
+    <ui-card [title]="'signal / computed / effect'" [desc]="'computed 是惰性派生值，effect 由变更检测调度'">
+      <VBoxContainer class="section">
+        <HBoxContainer class="row">
+          <Button class="primary" text="+1" (click)="bump(1)"></Button>
+          <Button text="-1" (click)="bump(-1)"></Button>
+          <Button class="ghost" text="清零" (click)="count.set(0)"></Button>
+        </HBoxContainer>
+        <GridContainer class="grid" [columns]="3">
+          <ui-stat [label]="'count()'" [value]="count()"></ui-stat>
+          <ui-stat [label]="'computed ×2'" [value]="double()"></ui-stat>
+          <ui-stat [label]="'computed 平方'" [value]="square()"></ui-stat>
+        </GridContainer>
+        <Label class="tiny" text="effect 每次 count 变化就写一行日志"></Label>
+        <PanelContainer class="log">
+          <VBoxContainer class="log-inner">
+            @for (l of log(); track $index) {
+            <Label class="log-line" [text]="l"></Label>
+            }
+          </VBoxContainer>
+        </PanelContainer>
+      </VBoxContainer>
+    </ui-card>
+
+    <ui-card [title]="'为什么必须是 signal'" [desc]="'普通字段赋值不会把视图标记为脏，模板也就读不到新值'">
+      <VBoxContainer class="section">
+        <ui-kv [k]="'signal：count()'" [v]="count()"></ui-kv>
+        <ui-kv [k]="'普通字段：plain'" [v]="plain"></ui-kv>
+        <Button text="只改 plain（界面不动）" (click)="bumpPlain()"></Button>
+        <Button class="ghost" text="改 count（顺带刷新 plain）" (click)="bump(1)"></Button>
+        <Label
+          class="note"
+          text="先连点左边几次，两个数字都不动；再点右边一次，它们一起跳。这就是「读取时收集依赖、写入时置脏」在 zoneless 下的表现。"></Label>
+      </VBoxContainer>
+    </ui-card>
+
+    <ui-card [title]="'linkedSignal：可回退的派生值'" [desc]="'源 signal 变化时重新求值，用户改过的值在源不变时保留'">
+      <VBoxContainer class="section">
+        <HBoxContainer class="field-row">
+          <Label class="field-label" text="音量"></Label>
+          <HSlider [min_value]="0" [max_value]="100" [value]="volume()" (change)="volume.set($event)"></HSlider>
+          <Label class="tiny" [text]="volume() + ' %'"></Label>
+        </HBoxContainer>
+        <HBoxContainer class="field-row">
+          <Label class="field-label" text="基准值"></Label>
+          <Button class="sm" text="随机一个基准" (click)="base.set(20 + Math.round(Math.random() * 80))"></Button>
+          <Label class="tiny" [text]="'base = ' + base()"></Label>
+        </HBoxContainer>
+        <Label class="muted" text="拖动音量后再改基准值，音量会被拉回新的基准"></Label>
+      </VBoxContainer>
+    </ui-card>
+
+    <ui-card [title]="'帧驱动可视化'" [desc]="'requestAnimationFrame 由 tick() 放行，柱状图和变更检测是同一个心跳'">
+      <VBoxContainer class="section">
+        <HBoxContainer class="chart">
+          @for (v of rt.history(); track $index) {
+          <Panel
+            class="bar"
+            [class.warn]="v < 50"
+            [size_flags_vertical]="shrinkEnd"
+            [style.minHeight]="barHeight(v)"></Panel>
+          }
+        </HBoxContainer>
+        <ui-kv [k]="'FPS'" [v]="rt.fpsText()"></ui-kv>
+        <ui-kv [k]="'帧耗时'" [v]="rt.msText() + ' ms'"></ui-kv>
+        <ui-kv [k]="'已处理帧'" [v]="rt.frames()"></ui-kv>
+      </VBoxContainer>
+    </ui-card>
+
+    <ui-card [title]="'待办清单'" [desc]="'增删改 + 过滤，全部由 signal 驱动，没有一处 markForCheck'">
+      <VBoxContainer class="section">
+        <HBoxContainer class="field-row">
+          <LineEdit
+            [size_flags_horizontal]="expand"
+            placeholder_text="新任务，回车提交"
+            [text]="draft()"
+            (input)="draft.set($event)"
+            (submit)="addTodo()"></LineEdit>
+          <Button class="primary sm" text="添加" (click)="addTodo()"></Button>
+        </HBoxContainer>
+        <HBoxContainer class="row">
+          <Button class="sm" [class.primary]="filter() === 'all'" text="全部" (click)="filter.set('all')"></Button>
+          <Button class="sm" [class.primary]="filter() === 'open'" text="未完成" (click)="filter.set('open')"></Button>
+          <Button class="sm" [class.primary]="filter() === 'done'" text="已完成" (click)="filter.set('done')"></Button>
+          <Control [size_flags_horizontal]="expand"></Control>
+          <Label class="tiny" [text]="'剩 ' + remaining() + ' / 共 ' + todos().length"></Label>
+        </HBoxContainer>
+        <VBoxContainer class="list">
+          @for (t of visible(); track t.id) {
+          <PanelContainer class="list-row" [class.done]="t.done">
+            <HBoxContainer class="row">
+              <CheckBox [text]="t.text" [button_pressed]="t.done" (change)="toggleTodo(t.id, $event)"></CheckBox>
+              <Control [size_flags_horizontal]="expand"></Control>
+              <Button class="sm danger" text="删除" (click)="removeTodo(t.id)"></Button>
+            </HBoxContainer>
+          </PanelContainer>
+          } @empty {
+          <Label class="muted" text="这个筛选条件下没有任务"></Label>
+          }
+        </VBoxContainer>
+      </VBoxContainer>
+    </ui-card>
+
+    <ui-card [title]="'防抖输入'" [desc]="'setTimeout 在引擎里可用，350ms 后才落到 debounced()'">
+      <VBoxContainer class="section">
+        <LineEdit placeholder_text="快速输入几个字" (input)="search($event)"></LineEdit>
+        <ui-kv [k]="'query() 实时'" [v]="query() || '（空）'"></ui-kv>
+        <ui-kv [k]="'debounced() 延迟'" [v]="debounced() || '（空）'"></ui-kv>
+      </VBoxContainer>
+    </ui-card>
+  </GridContainer>
+
+  <ui-section [title]="'这一页用到的写法'">
+    <ui-code [code]="snippet"></ui-code>
+  </ui-section>
+</ui-page>
