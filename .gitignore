@@ -48,3 +48,4 @@ __screenshots__/
 .DS_Store
 Thumbs.db
 /bin/windows*
+/.pi

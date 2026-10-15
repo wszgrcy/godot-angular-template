@@ -1,5 +1,8 @@
 {
     "html.customData": [
         "./node_modules/godot-angular/html-data/godot.html-data.json"
+    ],
+    "emmet.extensionsPath": [
+        "./node_modules/godot-angular/emmet"
     ]
 }
