@@ -1,4 +1,5 @@
-import { Component, Input, NO_ERRORS_SCHEMA, signal } from "@angular/core";
+import { Component, inject, Input, NO_ERRORS_SCHEMA, signal } from "@angular/core";
+import { Router, RouterOutlet } from '@angular/router';
 import { Vector2 } from "godot";
 
 /**
@@ -29,7 +30,7 @@ export class CardComponent {
 @Component({
   selector: "app-root",
   standalone: true,
-  imports: [CardComponent],
+  imports: [CardComponent, RouterOutlet],
   schemas: [NO_ERRORS_SCHEMA],
   templateUrl: "./app.html",
 })
@@ -79,5 +80,16 @@ export class App {
 
   private push(entry: string): void {
     this.log.update((l) => [...l.slice(-4), entry]);
+  }
+
+  clickBtn(value: number) {
+    console.log(value)
+  }
+  router = inject(Router)
+  navTo(str: string) {
+    console.log('str', str)
+    this.router.navigate([str]).then((res) => {
+      console.log(res)
+    })
   }
 }

@@ -1,59 +1,74 @@
 <VBoxContainer name="demo" [size_flags]="expand">
-  <Label text="godot-angular — Angular in Godot"></Label>
+  <label text="godot-angular — Angular in Godot"></label>
 
   <!-- 信号 → 事件：(click) 解析到 Button.pressed -->
   <HBoxContainer>
-    <Label [text]="'count = ' + count()"></Label>
-    <Button text="+1" (click)="inc()"></Button>
+    <label [text]="'count = ' + count()"></label>
+    <button text="+1" (click)="inc()"></button>
   </HBoxContainer>
 
   <!-- @if -->
   <HBoxContainer>
-    <Button text="toggle @if" (click)="toggleIf()"></Button>
+    <button text="toggle @if" (click)="toggleIf()"></button>
     @if (showIf()) {
-      <Label text="@if 为真时存在"></Label>
+    <label text="@if 为真时存在"></label>
     } @else {
-      <Label text="@if 为假"></Label>
+    <label text="@if 为假"></label>
     }
   </HBoxContainer>
 
   <!-- @for -->
   <HBoxContainer>
-    <Button text="add" (click)="addItem()"></Button>
-    <Button text="remove" (click)="removeFirst()"></Button>
+    <button text="add" (click)="addItem()"></button>
+    <button text="remove" (click)="removeFirst()"></button>
   </HBoxContainer>
   <VBoxContainer>
     @for (item of items(); track item.id) {
-      <Label [text]="item.name"></Label>
+    <label [text]="item.name"></label>
     }
   </VBoxContainer>
 
   <!-- @switch -->
   <HBoxContainer>
-    <Button text="cycle @switch" (click)="cycleMode()"></Button>
-    @switch (mode()) {
-      @case ("a") { <Label text="模式 A"></Label> }
-      @case ("b") { <Label text="模式 B"></Label> }
-      @default { <Label text="模式 C"></Label> }
-    }
+    <button text="cycle @switch" (click)="cycleMode()"></button>
+    @switch (mode()) { @case ("a") { <label text="模式 A"></label> } @case ("b") { <label text="模式 B"></label> } @default {
+    <label text="模式 C"></label> } }
   </HBoxContainer>
 
   <!-- 属性设置：颜色 / 字号 / 最小尺寸 -->
-  <Label
-    text="styled label"
-    [custom_minimum_size]="labelMinSize"
-    [style.color]="'#ff8800'"
-    [style.fontSize]="28"
-  ></Label>
+  <label text="styled label" [custom_minimum_size]="labelMinSize" [style.color]="'#ff8800'" [style.fontSize]="28"></label>
 
   <!-- 输入信号：LineEdit.text_changed -->
   <HBoxContainer>
     <LineEdit [size_flags]="expand" (input)="onInput($event)"></LineEdit>
-    <Label [text]="'input: ' + lastInput()"></Label>
+    <label [text]="'input: ' + lastInput()"></label>
   </HBoxContainer>
 
   <!-- ng-content 投影 -->
   <ui-card [title]="'ng-content 投影'">
-    <Label text="这行是被投影进来的内容"></Label>
+    <label text="这行是被投影进来的内容"></label>
   </ui-card>
+
+  <VBoxContainer>
+    <HBoxContainer>
+      <label text="选项1"></label>
+      <button text="按钮1" (click)="clickBtn(1)"></button>
+    </HBoxContainer>
+    <HBoxContainer>
+      <label text="选项2"></label>
+      <button text="按钮2"></button>
+    </HBoxContainer>
+    <HBoxContainer>
+      <label text="选项3"></label>
+      <button text="按钮3"></button>
+    </HBoxContainer>
+  </VBoxContainer>
+
+  <HBoxContainer>
+    <button text="跳转到页面1" (click)="navTo('/page1')"></button>
+    <button text="跳转到页面2" (click)="navTo('/page2')"></button>
+  </HBoxContainer>
+  <HBoxContainer>
+    <router-outlet></router-outlet>
+  </HBoxContainer>
 </VBoxContainer>

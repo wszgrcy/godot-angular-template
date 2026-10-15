@@ -1,7 +1,9 @@
 import { Control, Node, OS, Vector2 } from "godot";
 import { bootstrapGodotApp } from "godot-angular/core";
 import { App } from "./app";
-
+import { provideGodotRouter } from "godot-angular/router";
+import { Page1Component } from './page/page1/component';
+import { Page2Component } from './page/page2/component';
 /** 无头模式下导出节点树快照前等待的帧数，为布局与变更检测预留时间。 */
 const SNAPSHOT_AFTER_FRAMES = 5;
 
@@ -43,11 +45,14 @@ export default class Main extends Node {
     // 此处使用固定尺寸，目的是使无头模式下的布局断言保持稳定。
     const root = new Control();
     root.name = "AngularRoot";
-    root.size = new Vector2(1024, 768);
+    root.size = new Vector2(1600, 800);
     this.add_child(root);
     this.rootNode = root;
 
-    bootstrapGodotApp(App, root)
+    bootstrapGodotApp(App, root, [provideGodotRouter([
+      { path: 'page1', component: Page1Component },
+      { path: 'page2', component: Page2Component },
+    ])])
       .then((app) => {
         this.app = app;
         console.log("[demo] Angular bootstrapped");
