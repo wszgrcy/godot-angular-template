@@ -87,6 +87,7 @@ export class PageTemplate {
 
   onSlider(v: number): void {
     this.lastEvent.set(`HSlider.value_changed(value) → $event = ${v}`);
+    this.size.set(Math.round(v));
   }
 
   readTag(): void {

@@ -50,7 +50,7 @@
         </HBoxContainer>
         <Label
           class="tiny"
-          text=":disabled 在 Godot 里没有对应的信号，样式运行时无法自动重算；上面那个按钮用的是 .off 类 + [class.off] 绑定"></Label>
+          text=":disabled 由 disabled 属性驱动（模板绑定会标脏，帧末重算时从属性读回来），直接给节点赋值则需自行 invalidate；上面那个按钮额外用 .off 类定制了禁用色"></Label>
         <LineEdit placeholder_text="点一下获得焦点"></LineEdit>
         <CheckBox text="勾选态走 :checked" [button_pressed]="true"></CheckBox>
       </VBoxContainer>

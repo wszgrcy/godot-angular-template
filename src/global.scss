@@ -108,6 +108,11 @@ $teal:     #2dd4bf;
   border-color: $line;
   color: $text;
 }
+// 焦点环必须自己画：基规则写了 border-color: transparent，按层叠它会贯穿 focus 盒，
+// 把主题给 Button/focus 的那圈描边顶掉（outline 在本库无落点，不能指望它）。
+.nav-item:focus {
+  border-color: $brand;
+}
 .nav-item.active {
   background-color: #16324a;
   border-color: $brand;
@@ -215,7 +220,8 @@ $teal:     #2dd4bf;
   cursor: pointer;
 }
 // 卡片式入口：PanelContainer 撑尺寸，.tile-hit 是铺满的 flat Button，只负责交互。
-// hover / pressed 必须画在 .tile-hit 上：Button 盖在上层，PanelContainer 拿不到 mouse_entered。
+// hover 画在 .tile-hit 上是因为它顺带还有 :pressed 与 cursor；godot-angular 0.3.3 起
+// :hover 会向祖先冒泡，写在 .card-btn:hover 上也能亮了（旧版本必须绕这一层）。
 .card-btn {
   background-color: $surface;
   border-color: $line;
@@ -471,6 +477,11 @@ CheckBox, CheckButton {
 CheckBox:hover, CheckButton:hover {
   color: #ffffff;
 }
+// 勾选态要单独写：引擎在 button_pressed=true 时读的是 font_pressed_color（与鼠标按下同一个 item），
+// 只写 color（font_color）在勾选时不会显示。:checked 会落到 pressed 家族。
+CheckBox:checked, CheckButton:checked {
+  color: $text2;
+}
 HSlider {
   min-width: 180px;
 }
@@ -701,6 +712,7 @@ TabContainer {
 .light .statusbar { background-color: #f7f9fb; border-color: #d8dee6; }
 .light .nav-item { color: #3c4a5c; }
 .light .nav-item:hover { background-color: #e9eef4; border-color: #cfd8e3; color: #14202e; }
+.light .nav-item:focus { border-color: #6cb2f5; }
 .light .nav-item.active { background-color: #dcecff; border-color: #6cb2f5; color: #0b3f68; }
 .light .card-btn { background-color: #ffffff; border-color: #dde3ea; }
 .light .tile-hit:hover { background-color: rgba(20, 32, 46, 0.05); }
@@ -726,6 +738,10 @@ TabContainer {
 .light Button:hover { background-color: #eaf2fb; border-color: #7db8ef; color: #0b3f68; }
 .light Button.primary { background-color: $brand-d; border-color: $brand-d; color: #ffffff; }
 .light Button.primary:hover { background-color: #1a63d6; color: #ffffff; }
+// `.light Button` 与 `Button.danger` 同为 0,1,1，靠源码顺序前者赢 → 浅色下危险按钮会被刷成白底。
+// 补齐浅色变体，而不是去动特异度：变体就该比裸类名更具体。
+.light Button.danger { background-color: #fdeceb; border-color: #f2b8b4; color: #a5271f; }
+.light Button.danger:hover { background-color: #fbdcd9; border-color: #d9392f; color: #7f1b15; }
 .light LineEdit, .light TextEdit, .light OptionButton, .light ItemList {
   background-color: #ffffff;
   border-color: #cfd8e3;
@@ -734,6 +750,18 @@ TabContainer {
 // CheckBox / CheckButton 的文字色默认是深色主题的 $text2，落在白底卡片上对比度不够
 .light CheckBox, .light CheckButton {
   color: #22303f;
+}
+// 上面那条 CheckBox:hover 是深色主题专用的白字，浅色下会把字画白；这里盖回来
+.light CheckBox:hover, .light CheckButton:hover {
+  color: #0b3f68;
+}
+// 勾选态走 font_pressed_color（:checked → pressed），不写这条则勾选上的字是引擎默认的白字
+.light CheckBox:checked, .light CheckButton:checked {
+  color: #22303f;
+}
+// 勾选 + 禁用时引擎读的是 font_disabled_color（disabled 压过 checked），要单独给一份能看的灰
+.light CheckBox:disabled, .light CheckButton:disabled {
+  color: #93a1b0;
 }
 .light .code, .light .code-inline { background-color: #f4f6f9; border-color: #dde3ea; color: #2b3a4a; }
 .light .note { background-color: #eaf4fb; border-color: #a9d3ef; color: #17415c; }
