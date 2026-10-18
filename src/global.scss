@@ -83,7 +83,7 @@ $teal:     #2dd4bf;
   border-width: 0 1px 0 0;
   border-radius: 0;
   padding: 16px 12px;
-  width: 216px;
+  min-width: 216px;
 }
 .nav {
   gap: 4px;
@@ -139,7 +139,7 @@ $teal:     #2dd4bf;
 .dot {
   background-color: $ok;
   border-radius: 4px;
-  width: 8px;
+  min-width: 8px;
   min-height: 8px;
 }
 .dot.idle {
@@ -273,9 +273,9 @@ $teal:     #2dd4bf;
   border-radius: 9px;
   padding: 12px;
 }
-// 404 卡片：width 落点是 custom_minimum_size.x（只有下界），配合 SHRINK_BEGIN 停在固定宽
+// 404 卡片：min-width 落点是 custom_minimum_size.x（只有下界），配合 SHRINK_BEGIN 停在固定宽
 .notfound {
-  width: 520px;
+  min-width: 520px;
 }
 
 // ---------- 文本 ----------
@@ -546,7 +546,7 @@ TabContainer {
 .ball {
   background-color: $brand;
   border-radius: 10px;
-  width: 56px;
+  min-width: 56px;
   min-height: 56px;
   cursor: pointer;
 }
@@ -556,7 +556,7 @@ TabContainer {
 .bar {
   background-color: $brand;
   border-radius: 3px;
-  width: 9px;
+  min-width: 9px;
   min-height: 2px;
 }
 .chart {
@@ -578,7 +578,7 @@ TabContainer {
 }
 .vr {
   background-color: $line;
-  width: 1px;
+  min-width: 1px;
 }
 
 // ---------- 列表行 ----------
@@ -685,12 +685,12 @@ TabContainer {
   border-width: 1px;
   border-radius: 10px;
   min-height: 54px;
-  width: 54px;
+  min-width: 54px;
 }
 
 // ---------- 媒体查询：窗口宽度变化时自动改布局 ----------
 @media (max-width: 980px) {
-  .sidebar { width: 168px; }
+  .sidebar { min-width: 168px; }
   .content { padding: 16px 18px 32px 18px; }
   .brand-sub { visibility: hidden; }
 }
@@ -771,6 +771,10 @@ TabContainer {
 .light .stage { background-color: #ffffff; border-color: #dde3ea; }
 .light .hr, .light .vr { background-color: #dde3ea; }
 .light .ball { background-color: $brand-d; }
+// `.light .ball` 与 `.ball.alt` 特异度相同（0,2,0），靠源码顺序取胜会把 alt 一并刷蓝，
+// 而 alt 在浅色底上需要更深的紫，所以这里单独补一份（含 :hover）。
+.light .ball.alt { background-color: #7c4dff; }
+.light .ball.alt:hover { background-color: #9b7bff; }
 .light .hero { background-color: #e6f1fb; border-color: #a9d3ef; }
 .light .hero-sub { color: #17415c; }
 .light .log { background-color: #f4f6f9; border-color: #dde3ea; }

@@ -9,6 +9,6 @@
 .card-accent {
   background-color: var(--card-accent, #4cc2ff);
   border-radius: 2px;
-  width: 34px;
+  min-width: 34px;
   min-height: 3px;
 }
