@@ -1,0 +1,36 @@
+<ui-page
+  [title]="'场景切换'"
+  [desc]="'本工程不止一个入口：主界面之外还有一个「静态节点 + Angular」的混合场景、一个不引 Angular 的纯 JS 场景、一个纯 GDScript 场景。四个场景在同一进程里轮流当主场景。'"
+  [tags]="['多入口', 'change_scene_to_file', 'GodotAngularApp.destroy()', 'GDScript 共存']">
+  <ui-section
+    [title]="'四个场景'"
+    [hint]="'点卡片立刻切过去。切换前会先销毁本应用（见下方写法），否则旧场景帧末释放时渲染器会摸到已释放的节点'">
+    <GridContainer class="grid" [columns]="cols()">
+      @for (s of scenes; track s.path) {
+      <ui-tile
+        [title]="s.title"
+        [desc]="s.desc"
+        [tag]="s.self ? '当前' : s.tag"
+        (go)="go(s.path)"></ui-tile>
+      }
+    </GridContainer>
+  </ui-section>
+
+  <ui-section
+    [title]="'入口与产物的对应关系'"
+    [hint]="'入口名必须稳定：.tscn 按名字引用脚本，改名等于把场景文件写坏'">
+    <ui-code [code]="mapping"></ui-code>
+  </ui-section>
+
+  <ui-section
+    [title]="'切换的写法'"
+    [hint]="'顺序有两处不能反：拆应用要等点击的调用栈结束，且必须抢在新场景入树之前拆'">
+    <ui-code [code]="snippet"></ui-code>
+  </ui-section>
+
+  <ui-section
+    [title]="'混合场景是怎么叠起来的'"
+    [hint]="'挂载点由 .tscn 静态定义，根组件的宿主就是它本身，模板节点追加进去；两条栏始终不归 Angular 管'">
+    <ui-code [code]="hybrid"></ui-code>
+  </ui-section>
+</ui-page>

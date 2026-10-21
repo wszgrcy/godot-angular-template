@@ -18,4 +18,5 @@ export const NAV: NavItem[] = [
   { path: "/styles", label: "样式与主题", desc: "CSS → Theme / StyleBox", tag: "css" },
   { path: "/interop", label: "引擎互操作", desc: "viewChild · rAF · Web API", tag: "js" },
   { path: "/routing", label: "路由", desc: "provideGodotRouter", tag: "router" },
+  { path: "/scenes", label: "场景切换", desc: "多入口 · 混合控制 · GD", tag: "scene" },
 ];

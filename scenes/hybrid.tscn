@@ -1,0 +1,99 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://dist/hybrid.js" id="1_js"]
+[ext_resource type="Theme" path="res://themes/gd_theme.tres" id="2_theme"]
+
+[sub_resource type="StyleBoxFlat" id="sb_page"]
+content_margin_left = 18.0
+content_margin_top = 16.0
+content_margin_right = 18.0
+content_margin_bottom = 16.0
+bg_color = Color(0.043, 0.059, 0.086, 1)
+
+[sub_resource type="StyleBoxFlat" id="sb_bar"]
+content_margin_left = 14.0
+content_margin_top = 8.0
+content_margin_right = 14.0
+content_margin_bottom = 8.0
+bg_color = Color(0.075, 0.11, 0.153, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.141, 0.196, 0.267, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="Hybrid" type="PanelContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+theme_override_styles/panel = SubResource("sb_page")
+script = ExtResource("1_js")
+
+[node name="Layout" type="VBoxContainer" parent="."]
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="TopBar" type="PanelContainer" parent="Layout"]
+theme_override_styles/panel = SubResource("sb_bar")
+
+[node name="TopRow" type="HBoxContainer" parent="Layout/TopBar"]
+
+[node name="Mark" type="Label" parent="Layout/TopBar/TopRow"]
+theme_override_colors/font_color = Color(0.498, 0.82, 1, 1)
+theme_override_font_sizes/font_size = 15
+text = "静态顶栏 · hybrid.tscn 里摆好的节点"
+
+[node name="JsTick" type="Label" parent="Layout/TopBar/TopRow"]
+theme_override_font_sizes/font_size = 12
+text = "JS 帧 0"
+
+[node name="TopGap" type="Control" parent="Layout/TopBar/TopRow"]
+size_flags_horizontal = 3
+
+[node name="JsBtn" type="Button" parent="Layout/TopBar/TopRow"]
+text = "非 NG：JS 计数 +1"
+
+[node name="ResetBtn" type="Button" parent="Layout/TopBar/TopRow"]
+text = "清零"
+
+[node name="JsCount" type="Label" parent="Layout/TopBar/TopRow"]
+theme_override_colors/font_color = Color(0.902, 0.929, 0.961, 1)
+theme_override_font_sizes/font_size = 16
+text = "JS 计数 0"
+
+[node name="NgSeen" type="Label" parent="Layout/TopBar/TopRow"]
+theme_override_colors/font_color = Color(0.275, 0.827, 0.604, 1)
+theme_override_font_sizes/font_size = 12
+text = "静态侧读到 NG 0"
+
+[node name="ToMain" type="Button" parent="Layout/TopBar/TopRow"]
+text = "主界面"
+
+[node name="NgHost" type="VBoxContainer" parent="Layout"]
+size_flags_vertical = 3
+
+[node name="BottomBar" type="PanelContainer" parent="Layout"]
+theme_override_styles/panel = SubResource("sb_bar")
+
+[node name="BottomRow" type="HBoxContainer" parent="Layout/BottomBar"]
+
+[node name="NgEcho" type="Label" parent="Layout/BottomBar/BottomRow"]
+theme_override_colors/font_color = Color(0.275, 0.827, 0.604, 1)
+theme_override_font_sizes/font_size = 13
+text = "底部静态栏：等待 Angular 写入…"
+
+[node name="BottomGap" type="Control" parent="Layout/BottomBar/BottomRow"]
+size_flags_horizontal = 3
+
+[node name="ToPlain" type="Button" parent="Layout/BottomBar/BottomRow"]
+text = "纯 JS 场景"
+
+[node name="ToGd" type="Button" parent="Layout/BottomBar/BottomRow"]
+text = "GDScript 场景"

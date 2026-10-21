@@ -44,7 +44,7 @@ testem.log
 /typings
 __screenshots__/
 
-# CUJ_MODE=shot 导出的截图（tools/check_layout.sh / inspect_shot.py 的产物）
+# 本地临时截图（模板本身不产出，仅防误提交）
 /shots/
 /shot*.png
 

@@ -10,7 +10,7 @@
         "build": {
           "builder": "godot-angular:application",
           "options": {
-            "entries": ["src/main.ts"],
+            "entries": ["src/main.ts", "src/hybrid/hybrid.ts", "src/plain/plain-js.ts"],
             "tsConfig": "tsconfig.json",
             "outputPath": "dist",
             "resRoot": "res://dist",

@@ -1,0 +1,49 @@
+<!--
+  这一块是 Angular 的全部地盘：宿主是 .tscn 里静态定义的 NgHost，模板节点追加进它里面。
+  上下两条静态栏不在这里出现，它们由 hybrid.ts 在 _ready() 里绑定。
+-->
+<PanelContainer class="hx-panel" [size_flags_vertical]="grow">
+  <VBoxContainer class="hx-col">
+    <HBoxContainer class="hx-row">
+      <Label class="hx-title" text="中间这块归 Angular（模板生成）"></Label>
+      <Control [size_flags_horizontal]="grow"></Control>
+      <Label class="hx-mut" [text]="'静态侧已跑 ' + bridge.jsFrames() + ' 帧 · ' + bridge.jsMs().toFixed(2) + ' ms'"></Label>
+    </HBoxContainer>
+
+    <Label
+      class="hx-desc"
+      text="根组件的宿主就是场景里那个静态容器，不是新建的根节点。下面这行是运行期读出来的："></Label>
+    <Label class="hx-ok" [text]="hostInfo()"></Label>
+    <Label class="hx-ok" [text]="probeInfo()"></Label>
+    <Panel #probe name="probe" [size_flags_horizontal]="grow" [size_flags_vertical]="shrink"></Panel>
+
+    <HBoxContainer class="wrap">
+      @for (t of tags; track t) {
+      <Label class="hx-chip" [text]="t"></Label>
+      }
+    </HBoxContainer>
+
+    <HBoxContainer class="hx-row">
+      <Button class="hx-btn" text="NG 计数 +1" (click)="bump()"></Button>
+      <Label class="hx-num" [text]="ngClicks()"></Label>
+      <Label class="hx-mut" [text]="'静态按钮被点了 ' + bridge.jsClicks() + ' 次（非 NG 侧写的 signal）'"></Label>
+    </HBoxContainer>
+
+    @if (ngClicks() >= 3) {
+    <Label class="hx-warn" text="点满 3 次才出现这行 —— @if 在第二个入口里照常工作"></Label>
+    }
+
+    <HBoxContainer class="hx-row">
+      <LineEdit class="hx-input" [text]="draft()" (input)="draft.set($event)"></LineEdit>
+      <Button class="hx-btn" text="写进底部静态栏" (click)="push()"></Button>
+      <Label class="hx-ok" [text]="lastWrite()"></Label>
+    </HBoxContainer>
+
+    <HBoxContainer class="hx-row">
+      <Label class="hx-mut" text="切场景得交回静态侧执行（要销毁的就是本应用）："></Label>
+      <Button class="hx-ghost" text="纯 JS 场景" (click)="leave('res://scenes/plain_js.tscn')"></Button>
+      <Button class="hx-ghost" text="GDScript 场景" (click)="leave('res://scenes/gd_demo.tscn')"></Button>
+      <Button class="hx-ghost" text="主界面" (click)="leave('res://main.tscn')"></Button>
+    </HBoxContainer>
+  </VBoxContainer>
+</PanelContainer>
