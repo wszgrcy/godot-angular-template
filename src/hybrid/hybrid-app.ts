@@ -121,13 +121,12 @@ export class HybridApp implements AfterViewInit {
     const parent = this.host?.get_parent?.();
     const idx = this.host?.get_index?.() ?? -1;
     const total = parent ? parent.get_child_count() : 0;
-    // 读名字得用 get_name()：这套 JS 绑定里 node.name 只有写入通道，读出来是 undefined
     this.hostInfo.set(
-      `${this.host.get_class()} #${this.host.get_name()} · 是「${parent?.get_name()}」的第 ${idx + 1}/${total} 个子节点`,
+      `${this.host.get_class()} #${this.host.name} · 是「${parent?.name}」的第 ${idx + 1}/${total} 个子节点`,
     );
     const probe = this.probe().nativeElement as any;
     this.probeInfo.set(
-      `模板建的 ${probe.get_class()} #${probe.get_name()} 也挂在 ${probe.get_parent()?.get_name()} 下`,
+      `模板建的 ${probe.get_class()} #${probe.name} 也挂在 ${probe.get_parent()?.name} 下`,
     );
   }
 

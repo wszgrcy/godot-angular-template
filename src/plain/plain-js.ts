@@ -111,13 +111,12 @@ export default class PlainJsScene extends Node {
     if (OS.has_feature("headless")) DisplayServer.window_set_size(new Vector2i(1280, 800));
 
     const root = new VBoxContainer();
-    // 读名字得用 get_name()，写名字得用 set_name()：这套绑定里 node.name 是个无效属性
-    root.set_name("Root");
+    root.name = "Root";
     root.set_anchors_and_offsets_preset(Control.LayoutPreset.PRESET_FULL_RECT);
     this.add_child(root);
 
     const bg = new PanelContainer();
-    bg.set_name("Bg");
+    bg.name = "Bg";
     bg.add_theme_stylebox_override("panel", box(C.bg, 0, 18));
     bg.size_flags_horizontal = Control.SizeFlags.SIZE_EXPAND_FILL;
     bg.size_flags_vertical = Control.SizeFlags.SIZE_EXPAND_FILL;

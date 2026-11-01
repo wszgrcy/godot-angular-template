@@ -10,7 +10,7 @@ Godot 的 `Control` 节点树，不引入 WebView，不需要 GDScript 界面代
 
 | 项 | 要求 |
 | --- | --- |
-| 引擎 | GodotJS 构建的 Godot 4.6.1，需编辑器构建 |
+| 引擎 | GodotJS 构建的 Godot 4.7.2（GodotJS 1.3.2），需编辑器构建 |
 | Node.js | `^22.22.3 \|\| ^24.15.0 \|\| >=26.0.0` |
 | Angular | `^22.0.0` |
 
@@ -23,10 +23,14 @@ npm run typecheck     # ng build 不执行类型检查，需单独执行
 npm test              # 用例在引擎内运行，模板自带一份冒烟用例
 ```
 
-引擎从 <https://github.com/godotjs/GodotJS/releases> 下载
-[windows-editor-4.6.1-v8.zip](https://github.com/godotjs/GodotJS/releases/download/v1.1.0.beta1-4.6.1/windows-editor-4.6.1-v8.zip)，
-解压到 `bin/`，随后用编辑器打开 `project.godot` 运行。命令行示例中的 `<godot>` 指
-`bin/windows-editor-4.6.1-v8/godot.windows.editor.x86_64.exe`。
+引擎从 <https://github.com/wszgrcy/GodotJS/releases>（1.3.x 目前只有这份）下载
+[windows-editor-4.7.2-v8.zip](https://github.com/wszgrcy/GodotJS/releases/download/1.3.2/windows-editor-4.7.2-v8.zip)，
+解压到 `bin/windows-v8/`（zip 里只有一个可执行文件，需自己建目录），随后用编辑器打开 `project.godot` 运行。
+命令行示例中的 `<godot>` 指 `bin/windows-v8/godot.windows.editor.x86_64.exe`。
+
+目录名只区分平台与运行时，**不带引擎版本号**（`linux-v8/` 与 `windows-v8/`），升级时直接覆盖同一个文件。
+注意同一个 Godot 版本的不同 GodotJS 版次 `--version` 输出完全一样，分不出新旧；
+要确认拿到的是 1.3.2，用 `strings <二进制> | grep -cx "1.3.2"`。
 
 修改 `src/` 后需重新执行 `npm run build`：引擎加载的是 `dist/` 中的构建产物。
 
