@@ -7,7 +7,7 @@ import { UiCode, UiPage, UiSection, UiStat, UiTile } from "../../ui/kit";
 const PIPELINE = `Angular 模板（就是 HTML 语法）
    │  ng build → godot-angular:application（AOT + zoneless）
    ▼
-dist/main.js            CommonJS，被 GodotJS 的 V8 require()
+dist/main.mjs            原生 ESM，由 GodotJS 的 V8 按 ES 模块加载
    ▼
 GodotRenderer           Renderer2 的 Godot 实现
    ▼

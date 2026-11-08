@@ -8,7 +8,7 @@ type Leaver = (path: string) => void;
 /**
  * 静态节点 ↔ Angular 的桥。
  *
- * 两侧在同一个 JS 模块图里（hybrid.js 一个 bundle），所以模块级单例就是共享状态，
+ * 两侧在同一个 JS 模块图里（hybrid.mjs 一个 bundle），所以模块级单例就是共享状态，
  * 不需要事件总线。方向有两个：
  *
  * - **非 NG → NG**：静态按钮的 `pressed` 里 `jsClicks.update()`，模板读同一个 signal。

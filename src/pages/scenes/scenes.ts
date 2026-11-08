@@ -3,14 +3,14 @@ import { Breakpoints } from "../../core/runtime";
 import { SCENES, SceneSwitch } from "../../core/switcher";
 import { UiCode, UiPage, UiSection, UiTile } from "../../ui/kit";
 
-const MAPPING = `src/main.ts            → dist/main.js       主场景根脚本（本页就是它渲染的）
-src/hybrid/hybrid.ts   → dist/hybrid.js     混合场景根脚本，第二个 Angular 应用
-src/plain/plain-js.ts  → dist/plain-js.js   纯 JS 场景，没 import godot-angular
+const MAPPING = `src/main.ts            → dist/main.mjs     主场景根脚本（本页就是它渲染的）
+src/hybrid/hybrid.ts   → dist/hybrid.mjs    混合场景根脚本，第二个 Angular 应用
+src/plain/plain-js.ts  → dist/plain-js.mjs  纯 JS 场景，没 import godot-angular
 scripts/gd_demo.gd     → 不经构建            GDScript 场景，构建产物里根本没有它`;
 
 const SNIPPET = `// angular.json：一个工作区产出三个入口，共享同一份运行时与全局样式
 "entries": ["src/main.ts", "src/hybrid/hybrid.ts", "src/plain/plain-js.ts"]
-// → dist/main.js  dist/hybrid.js  dist/plain-js.js（+ dist/chunks/ 共享分块）
+// → dist/main.mjs  dist/hybrid.mjs  dist/plain-js.mjs（+ dist/chunks/ 共享分块）
 
 // 切换：先拆掉本应用，再让引擎换场景
 private readonly app = inject(GodotAngularApp);   // 就是 bootstrapGodotApp() 返回的那个

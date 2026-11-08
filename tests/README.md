@@ -5,7 +5,7 @@ Godot 的 `res://` 根目录就是本仓库根（`project.godot` 所在目录）
 
 ```
 tests/
-├── engine_vitest.tscn      # ng test 的引擎入口场景，挂 res://dist-engine-test/vitest-entry.js
+├── engine_vitest.tscn      # ng test 的引擎入口场景，挂 res://dist-engine-test/vitest-entry.mjs
 └── engine/                 # 引擎内执行的 vitest 用例（angular.json → test.specInclude）
     └── hello.spec.ts
 ```
@@ -26,7 +26,7 @@ tests/
 ## 一个注意点
 
 builder 判断“是否需要补跑一次 `godot --headless --import`”时，只对**项目根目录**下的
-`.js` / `.tscn` 取哈希（见 `node_modules/godot-angular/builder/shared/godot-bin.mjs` 的
+`.js` / `.mjs` / `.tscn` 取哈希（见 `node_modules/godot-angular/builder/shared/godot-bin.mjs` 的
 `entryHash`）。场景移进本目录后不再被这个哈希覆盖。正常情况无影响（`.tscn` 运行时直接读盘，
-bundle 走 `require` 也直接读盘），但如果你改了场景里 `ext_resource` 的脚本路径而引擎似乎仍
+产物作为 ES 模块也直接读盘），但如果你改了场景里 `ext_resource` 的脚本路径而引擎似乎仍
 在用旧副本，删掉 `.godot/cuj-entry-hash` 再跑一次 `npm test` 即可强制重新 import。

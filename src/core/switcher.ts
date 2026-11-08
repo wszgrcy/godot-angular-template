@@ -22,8 +22,8 @@ export interface SceneEntry {
 /**
  * 本工程的四个场景。前三项从主应用切出去，第四项（主应用自己）留在清单里当对照。
  *
- * 三个入口在 angular.json 的 entries 里声明：`dist/main.js`（本应用）、
- * `dist/hybrid.js`（第二个 Angular 应用，挂在静态场景上）、`dist/plain-js.js`
+ * 三个入口在 angular.json 的 entries 里声明：`dist/main.mjs`（本应用）、
+ * `dist/hybrid.mjs`（第二个 Angular 应用，挂在静态场景上）、`dist/plain-js.mjs`
  * （不引 Angular 的纯 JS 场景）。GDScript 那份不参与构建。
  */
 export const SCENES: SceneEntry[] = [
@@ -31,14 +31,14 @@ export const SCENES: SceneEntry[] = [
     path: "res://scenes/hybrid.tscn",
     title: "混合控制",
     desc: "静态 .tscn 节点 + 第二个 Angular 入口：上下两条栏由 JS 在 _ready() 里绑定，中间整块交给模板",
-    tag: "hybrid.js",
+    tag: "hybrid.mjs",
     who: "静态场景 + JS + Angular",
   },
   {
     path: "res://scenes/plain_js.tscn",
     title: "纯 JS 场景",
     desc: "不引 godot-angular，节点全部由 JS 代码创建、样式走 theme override，与 Angular 无关",
-    tag: "plain.js",
+    tag: "plain-js.mjs",
     who: "纯 JS（无 Angular）",
   },
   {
@@ -51,8 +51,8 @@ export const SCENES: SceneEntry[] = [
   {
     path: "res://main.tscn",
     title: "主界面（当前）",
-    desc: "第一个入口：根节点脚本 dist/main.js，整棵树都是模板生成的",
-    tag: "main.js",
+    desc: "第一个入口：根节点脚本 dist/main.mjs，整棵树都是模板生成的",
+    tag: "main.mjs",
     who: "Angular 模板",
     self: true,
   },

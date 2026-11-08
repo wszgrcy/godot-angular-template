@@ -113,7 +113,7 @@ export class HybridApp implements AfterViewInit {
 
   private readonly host = inject(GODOT_ROOT) as any;
 
-  readonly tags = ["第二个入口", "dist/hybrid.js", "静态挂载点", "zoneless"];
+  readonly tags = ["第二个入口", "dist/hybrid.mjs", "静态挂载点", "zoneless"];
 
   readonly hostName = computed(() => String(this.host?.name ?? "?"));
 

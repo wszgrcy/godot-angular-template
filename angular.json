@@ -13,7 +13,6 @@
             "entries": ["src/main.ts", "src/hybrid/hybrid.ts", "src/plain/plain-js.ts"],
             "tsConfig": "tsconfig.json",
             "outputPath": "dist",
-            "resRoot": "res://dist",
             "styles": ["src/global.scss"],
             "optimization": false,
             "sourceMap": false
@@ -29,7 +28,6 @@
           "options": {
             "tsConfig": "tsconfig.json",
             "outputPath": "dist-engine-test",
-            "resRoot": "res://dist-engine-test",
             "optimization": false,
             "sourceMap": false,
             "specInclude": ["tests/engine/*.spec.ts"],

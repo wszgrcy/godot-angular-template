@@ -10,7 +10,7 @@ Godot 的 `Control` 节点树，不引入 WebView，不需要 GDScript 界面代
 
 | 项 | 要求 |
 | --- | --- |
-| 引擎 | GodotJS 构建的 Godot 4.7.2（GodotJS 1.3.2），需编辑器构建 |
+| 引擎 | GodotJS 构建的 Godot 4.7.2（GodotJS 1.3.5），需编辑器构建 |
 | Node.js | `^22.22.3 \|\| ^24.15.0 \|\| >=26.0.0` |
 | Angular | `^22.0.0` |
 
@@ -24,15 +24,18 @@ npm test              # 用例在引擎内运行，模板自带一份冒烟用�
 ```
 
 引擎从 <https://github.com/wszgrcy/GodotJS/releases>（1.3.x 目前只有这份）下载
-[windows-editor-4.7.2-v8.zip](https://github.com/wszgrcy/GodotJS/releases/download/1.3.2/windows-editor-4.7.2-v8.zip)，
+[windows-editor-4.7.2-v8.zip](https://github.com/wszgrcy/GodotJS/releases/download/1.3.5/windows-editor-4.7.2-v8.zip)，
 解压到 `bin/windows-v8/`（zip 里只有一个可执行文件，需自己建目录），随后用编辑器打开 `project.godot` 运行。
 命令行示例中的 `<godot>` 指 `bin/windows-v8/godot.windows.editor.x86_64.exe`。
 
 目录名只区分平台与运行时，**不带引擎版本号**（`linux-v8/` 与 `windows-v8/`），升级时直接覆盖同一个文件。
-注意同一个 Godot 版本的不同 GodotJS 版次 `--version` 输出完全一样，分不出新旧；
-要确认拿到的是 1.3.2，用 `strings <二进制> | grep -cx "1.3.2"`。
+`--version` 只记 Godot 内核，分不出 GodotJS 版次；确认手上那份是不是 1.3.5 就比 md5（见 `bin/README.md`）。
 
 修改 `src/` 后需重新执行 `npm run build`：引擎加载的是 `dist/` 中的构建产物。
+
+产物是原生 ESM 的 `.mjs`（godot-angular 0.8 起），因此四个场景的 `.tscn` 里 `ext_resource` 引用的
+也是 `res://dist/*.mjs`，改了入口名或扩展名要同步改场景，否则引擎找不到脚本。引擎因此
+不得低于 GodotJS 1.3.5（更早的包只能把 `.ts` 源路径硬拼成 `.js`）。
 
 ## 示例页面
 
@@ -62,9 +65,9 @@ MSYS_NO_PATHCONV=1 APP_URL=/forms <godot> --headless --path .
 
 | 场景 | 根节点脚本 | 节点创建方 |
 | --- | --- | --- |
-| `main.tscn` | `dist/main.js` | Angular 模板，整棵树由模板生成 |
-| `scenes/hybrid.tscn` | `dist/hybrid.js` | 顶栏与底栏为静态 `.tscn` 节点并在 `_ready()` 中绑定，中间 `NgHost` 交由模板渲染 |
-| `scenes/plain_js.tscn` | `dist/plain-js.js` | 纯 JS 代码，不引用 `godot-angular` |
+| `main.tscn` | `dist/main.mjs` | Angular 模板，整棵树由模板生成 |
+| `scenes/hybrid.tscn` | `dist/hybrid.mjs` | 顶栏与底栏为静态 `.tscn` 节点并在 `_ready()` 中绑定，中间 `NgHost` 交由模板渲染 |
+| `scenes/plain_js.tscn` | `dist/plain-js.mjs` | 纯 JS 代码，不引用 `godot-angular` |
 | `scenes/gd_demo.tscn` | `scripts/gd_demo.gd` | 静态 `.tscn` 与 GDScript，不使用 Angular 的对照实现 |
 
 混合场景中静态节点与模板节点的分工见 `src/hybrid/`，场景切换流程见 `src/core/switcher.ts`。

@@ -92,7 +92,7 @@ function spring(): Control {
  *
  * 没有模板、没有 signal、没有变更检测：节点在 `_ready()` 里 new 出来挂上去，
  * 文本在 `_process()` 里直接写，样式用 `add_theme_*_override`。构建产物里它和
- * hybrid.js 一样是个入口，但没 import godot-angular，所以 Angular 的运行时一行都没进来。
+ * hybrid.mjs 一样是个入口，但没 import godot-angular，所以 Angular 的运行时一行都没进来。
  *
  * 存在的意义是对照：同一件事（计数、动画、切场景）不用 Angular 要写多少、写出来长什么样。
  */
@@ -126,7 +126,7 @@ export default class PlainJsScene extends Node {
     col.size_flags_vertical = Control.SizeFlags.SIZE_EXPAND_FILL;
     bg.add_child(col);
 
-    col.add_child(label("纯 JS 场景 · dist/plain-js.js", C.text, 26));
+    col.add_child(label("纯 JS 场景 · dist/plain-js.mjs", C.text, 26));
     col.add_child(
       label(
         "这个场景没有引 godot-angular：节点全部由 JS 在 _ready() 里创建，样式走 add_theme_*_override，" +
